@@ -74,12 +74,21 @@ calc_cascade <- function(df) {
       DurNC = 1 / r_g2,
       DurCS = 1 / r_g3,
       
+      TTSym = DurAsym,
+      TTAware = TTSym + DurNA,
+      TTCare = TTAware + DurNC,
+      TTDet = TTCare + DurCS,
+      
       DelayPatient = DurNA + DurNC,
       DelaySystem = DurCS,
-      DelayTotal = DelayPatient + DelaySystem
+      DelayTotal = DelayPatient + DelaySystem,
+      
+      Burden = TxR * Pop
     ) %>% 
     select(
       Location, Key,
-      starts_with("Gap"), starts_with("Cas"), starts_with("Dur"), starts_with("Delay"), starts_with("Drop"))
+      Burden,
+      starts_with("Gap"), starts_with("Cas"), starts_with("Dur"), starts_with("TT"),
+      starts_with("Delay"), starts_with("Drop"))
   
 }

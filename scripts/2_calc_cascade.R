@@ -1,7 +1,7 @@
 library(tidyverse)
 
 
-source(here::here("R", "calc_rate.R"))
+source(here::here("R", "calc_cascade.R"))
 
 
 for (scenario in c("shared_pr_asym", "shared_r_onset")) {

@@ -12,7 +12,7 @@ d_cascade <- data_cascade %>%
     Pr_NA_NC = NotRecognised + Ignored, 
     Prev_Std = (Prev_U - Prev_L) / 2 / 1.96
   ) %>% 
-  select(Location, Prev = Prev_M, Prev_Std,
+  select(Location, Pop, Prev = Prev_M, Prev_Std,
          Pr_CS_Sym = Consulted, Pr_NA_NC,
          CNR_pub = CNR_public_2019, CNR_eng = CNR_private_2019,
          TxI_pub = TxI_public_2019, TxI_eng = TxI_private_2019,
@@ -42,7 +42,7 @@ d_cascade <- data_cascade %>%
     Pr_NA_NC = NotRecognised + Ignored, 
     Prev_Std = (Prev_U - Prev_L) / 2 / 1.96
   ) %>% 
-  select(Location, Prev = Prev_M, Prev_Std,
+  select(Location, Pop, Prev = Prev_M, Prev_Std,
          Pr_CS_Sym = Consulted, Pr_NA_NC,
          CNR_pub = CNR_public_2020, CNR_eng = CNR_private_2020,
          TxI_pub = TxI_public_2019, TxI_eng = TxI_private_2019,
@@ -72,7 +72,7 @@ d_cascade <- data_cascade %>%
     Pr_NA_NC = NotRecognised + Ignored, 
     Prev_Std = (Prev_U - Prev_L) / 2 / 1.96
   ) %>% 
-  select(Location, Prev = Prev_M, Prev_Std,
+  select(Location, Pop, Prev = Prev_M, Prev_Std,
          Pr_CS_Sym = Consulted, Pr_NA_NC,
          CNR_pub = CNR_public_2021, CNR_eng = CNR_private_2021,
          TxI_pub = TxI_public_2019, TxI_eng = TxI_private_2019,

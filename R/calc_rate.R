@@ -55,7 +55,7 @@ calc_rate <- function(df, exo, settings) {
         r_aware = Prev_C / Prev_S * (r_mu_sym + r_cs),
         r_onset = Prev_S / Prev_A * (r_mu_sym + r_aware)
       ) %>% 
-      select(Location, Key, starts_with("DetR"), starts_with("TxR"), starts_with("TxI_"), 
+      select(Location, Key, Pop, starts_with("DetR"), starts_with("TxR"), starts_with("TxI_"), 
              Prev, Prev_A, Prev_S, Prev_C, Prev_E, starts_with("r_"))
   })
 }

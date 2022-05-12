@@ -8,7 +8,7 @@ n_mc <- 2000
 
 
 settings <- list(
-  TxI_pri = 0.7,
+  TxI_pri = 0.8,
   TxTime_pri2pub = 2,
   r_succ_pub = 2,
   r_succ_eng = 2,

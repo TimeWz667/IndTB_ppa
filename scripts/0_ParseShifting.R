@@ -15,28 +15,19 @@ shifting <- bind_rows(lapply(entries, function(ent) {
   len <- length(ent) - 2
   
   path <- ent[1:len]
-  path <- c("UC", path, "det")
+  path <- ifelse(path == "Public", "pub", "pri")
+  path[len] <- "pub_det"
+  path <- c("UC", path)
   
   tibble(
     PID = pid,
+    src = paste(path, collapse = ":"),
     From = path[-length(path)],
     To = path[-1],
     N = as.numeric(ent[len + 1]),
     length = len
   )
-})) %>% 
-  mutate(
-    From = case_when(
-      From == "Public" ~ "pub",
-      From == "Private" ~ "pri",
-      T ~ From
-    ),
-    To = case_when(
-      To == "Public" ~ "pub",
-      To == "Private" ~ "pri",
-      T ~ To
-    )
-  )
+}))
 
 save(shifting, file = here::here("data", "shifting.rdata"))
 
@@ -45,13 +36,21 @@ save(shifting, file = here::here("data", "shifting.rdata"))
 shifting %>% 
   select(PID, N, length) %>% 
   distinct() %>% 
-  group_by(length) %>% 
   summarise(
-    M = mean(N)
-  ) %>% 
-  ungroup() %>% 
-  summarise(
-    med = sum(M * length) / sum(M)
+    med = sum(N * length) / sum(N)
   )
 
 
+
+
+shifting %>% 
+  group_by(PID) %>% 
+  mutate(
+    without_pri = 1 - any(To == "pri")
+  ) %>% 
+  ungroup() %>% 
+  select(PID, N, without_pri, length) %>% 
+  distinct() %>% 
+  summarise(
+    med = sum(N * length * without_pri) / sum(N * without_pri)
+  )

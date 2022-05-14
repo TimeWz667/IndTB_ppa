@@ -103,7 +103,7 @@ extract_referrals <- function(trm, loc) {
   }
   mx_end[, 1:3] <- 0
   mx_end <- mx_end / rowSums(mx_end)
-  tr_end <- mx_end * colSums(mx_1)
+  tr_end <- mx_end * colSums(tr_1)
   
   
   flows <- bind_rows(
@@ -195,18 +195,20 @@ vis_referrals <- function(stocks, flows, bar.width=20, interval=70, n.step=50) {
   
   
   bands <- flows %>% 
-    arrange(Stage0, Sector0) %>% 
-    group_by(Stage0) %>% 
+    group_by(Stage0) %>%
+    arrange(Stage0, Sector0, Sector1) %>% 
     mutate(
       y1s = cumsum(Freq),
       y0s = c(0, y1s[-length(y1s)])
     ) %>% 
-    arrange(Stage1, Sector1) %>% 
+    ungroup() %>% 
     group_by(Stage1) %>% 
+    arrange(Stage1, Sector1, Sector0) %>% 
     mutate(
       y1t = cumsum(Freq),
       y0t = c(0, y1t[-length(y1t)])
     ) %>% 
+    ungroup() %>% 
     left_join(stocks %>% 
                 select(Stage0 = Stage, x0 = x1) %>% 
                 distinct()) %>% 

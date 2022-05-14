@@ -2,37 +2,54 @@ library(tidyverse)
 library(odin)
 
 
-load(here::here("out", "shifting.rdata"))
-
-
+source(here::here("R", "calc_shifting.R"))
 model_shifting <- odin::odin("odin/shifting.R", verbose = F) 
 
-# for (scenario in c("shared_pr_asym", "shared_r_onset")) {
-#   for (cnr_year in 2019:2021) {
-
-scenario = "shared_pr_asym"
-cnr_year = 2019
-
-folder <- glue::as_glue("cas_") + cnr_year
-
-file_rates <- glue::as_glue("rates_") + scenario + ".rdata"
-
-load(here::here("out", folder, file_rates))
 
 
+for (cnr_year in 2019:2021) {
+  folder <- glue::as_glue("cas_") + cnr_year
+  load(here::here("out", folder, "shifting.rdata"))
 
-d <- rates %>% 
-  filter(Location == "Tamil_Nadu") %>% 
-  filter(Key == 1) %>% 
-  as.list()
+  pars_shifting0 <- lapply(sim_shifting, function(s0) {
+    s0 <- s0$Sim
+    trm <- s0$tr_mat[, 1:3] + s0$tr_mat[, 4:6]
+    
+    list(
+      entry = trm["UC", ],
+      p_diag0 = s0$p_diag["UC", ],
+      p_diag1 = s0$p_diag[1:3, ],
+      trm_shift = trm[1:3, ]
+    )
+  })
 
-sim_shifting <- sim
+  
+  for (scenario in c("shared_pr_asym", "shared_r_onset")) {
+    file_rates <- glue::as_glue("rates_") + scenario + ".rdata"
+    file_shift <- glue::as_glue("shifting_") + scenario + ".rdata"
+    
+    load(here::here("out", folder, file_rates))
 
-
-
-
-
-r_recsi <- find_r_recsi(d, sim_shifting = sim_shifting)
+    locs <- unique(rates$Location)
+    names(locs) <- locs
+    
+    pars_shifting <- lapply(locs, function(loc) {
+      print(loc)
+      rates_loc <- rates %>% filter(Location == loc)
+      shift_loc <- sim_shifting[[loc]]$Sim
+      
+      list(
+        Rates = bind_rows(lapply(unique(rates_loc$Key), function(k) {
+          d <- rates_loc %>% filter(Key == k) %>% as.list()
+          d$r_recsi <- find_r_recsi(d, sim_shifting = shift_loc)
+          d
+        })),
+        Shifting = pars_shifting0[[loc]]
+      )
+    })
+    save(pars_shifting, file = here::here("out", folder, file_shift))  
+  }
+}
 
 
 

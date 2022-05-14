@@ -87,4 +87,158 @@ find_r_recsi <- function(d, sim_shifting) {
 
 
 
+extract_referrals <- function(trm, loc) {
+  require(tidyverse)
+  
+  mx <- rbind(trm[1:3, ], pub_det = 0, eng_det = 0, pri_det = 0)
+  mx[4:6, 4:6] <- diag(1, 3)
+  
+  
+  tr_1 <- mx * trm["UC", ]
+  
+  
+  mx_end <- mx
+  for (i in 1:20) {
+    mx_end <- mx_end %*% mx
+  }
+  mx_end[, 1:3] <- 0
+  mx_end <- mx_end / rowSums(mx_end)
+  tr_end <- mx_end * colSums(mx_1)
+  
+  
+  flows <- bind_rows(
+    data.frame(as.table(tr_1)) %>% 
+      tibble() %>% 
+      rename(Sector0 = Var1, Sector1 = Var2) %>% 
+      mutate(Stage0 = "Entry", Stage1 = "Second"),
+    data.frame(as.table(tr_end)) %>% 
+      tibble() %>% 
+      rename(Sector0 = Var1, Sector1 = Var2) %>% 
+      mutate(Stage0 = "Second", Stage1 = "Diagnosis"),
+  )%>% 
+    mutate(
+      Sector0 = as.character(Sector0),
+      Sector0 = case_when(
+        Sector0 == "pub_det" ~ "pub",
+        Sector0 == "eng_det" ~ "eng",
+        Sector0 == "pri_det" ~ "pri",
+        T ~ Sector0
+      ),
+      Sector1 = as.character(Sector1),
+      Sector1 = case_when(
+        Sector1 == "pub_det" ~ "pub",
+        Sector1 == "eng_det" ~ "eng",
+        Sector1 == "pri_det" ~ "pri",
+        T ~ Sector1
+      )
+    ) %>% 
+    group_by(Sector0, Sector1, Stage0, Stage1) %>% 
+    summarise(Freq = sum(Freq)) %>% 
+    ungroup() %>% 
+    arrange(Stage0, Sector0) %>% 
+    mutate(
+      Stage0 = factor(Stage0, c("Entry", "Second", "Diagnosis")),
+      Stage1 = factor(Stage1, c("Entry", "Second", "Diagnosis")),
+      Sector0 = factor(Sector0, c("pri", "eng", "pub")),
+      Sector1 = factor(Sector1, c("pri", "eng", "pub"))
+    ) %>% 
+    arrange(Stage0, Stage1, Sector0, Sector1)
+  
+  
+  
+  stocks <- bind_rows(
+    flows %>% 
+      select(Sector = Sector0, Stage = Stage0, Freq),
+    flows %>% 
+      select(Sector = Sector1, Stage = Stage1, Freq) %>% 
+      filter(Stage == "Diagnosis")
+  ) %>% 
+    group_by(Stage, Sector) %>% 
+    summarise(Freq = sum(Freq)) %>% 
+    ungroup() %>% 
+    mutate(
+      Stage = factor(Stage, c("Entry", "Second", "Diagnosis")),
+      Sector = factor(Sector, c("pri", "eng", "pub")),
+    ) %>% 
+    arrange(Stage, Sector)
+  
+  list(
+    stocks = stocks,
+    flows = flows,
+    Location = loc
+  )
+}
+
+
+
+vis_referrals <- function(stocks, flows, bar.width=20, interval=70, n.step=50) {
+  sts.n <- 3
+  width <- sts.n * bar.width + (sts.n-1) * interval
+  
+  
+  stocks <- stocks %>% 
+    mutate(
+      x0 = (as.numeric(Stage) - 1) * interval,
+      x1 = (as.numeric(Stage) - 1) * interval + bar.width
+    ) %>% 
+    group_by(Stage) %>% 
+    mutate(
+      y1 = cumsum(Freq),
+      y0 = c(0, y1[-length(y1)])
+    )
+  
+  
+  labels_x <- stocks %>% 
+    select(Stage, x0, x1) %>% 
+    mutate(x = (x0 + x1) / 2) %>% 
+    distinct()
+  
+  
+  bands <- flows %>% 
+    arrange(Stage0, Sector0) %>% 
+    group_by(Stage0) %>% 
+    mutate(
+      y1s = cumsum(Freq),
+      y0s = c(0, y1s[-length(y1s)])
+    ) %>% 
+    arrange(Stage1, Sector1) %>% 
+    group_by(Stage1) %>% 
+    mutate(
+      y1t = cumsum(Freq),
+      y0t = c(0, y1t[-length(y1t)])
+    ) %>% 
+    left_join(stocks %>% 
+                select(Stage0 = Stage, x0 = x1) %>% 
+                distinct()) %>% 
+    left_join(stocks %>% 
+                select(Stage1 = Stage, x1 = x0) %>% 
+                distinct()) %>% 
+    ungroup() %>% 
+    mutate(Key = 1:n()) %>% 
+    merge(tibble(xx = seq(-pi/2, pi/2, length.out = n.step))) %>% 
+    arrange(Key) %>% 
+    group_by(Key) %>% 
+    mutate(
+      ys.upper = y0s + (y0t-y0s)/2 * (sin(xx) + 1 ),
+      ys.lower = y1s + (y1t-y1s)/2 * (sin(xx) + 1 ),
+      xs = seq(x0[1], x1[1], length.out = n.step)
+    )
+  
+  g <- ggplot(stocks) +
+    geom_rect(aes(xmin = x0, xmax = x1, ymin = y0, ymax = y1, fill = Sector), 
+              colour = "grey7") +
+    geom_ribbon(data=bands, aes(x=xs, ymin=ys.lower, ymax=ys.upper, group = Key), 
+                colour = "grey7", fill="darkgreen", alpha=0.3) +
+    scale_x_continuous("Stage", breaks = labels_x$x, 
+                       labels = c("Initial visit", "Second visit", "Diagnosis")) +
+    scale_fill_discrete("Sector", 
+                        labels = c(pri = "Private", eng = "Engaged Private", pub = "Public"))
+  
+  list(
+    stocks = stocks,
+    flows = flows,
+    bands = bands,
+    g = g
+  )
+}
 

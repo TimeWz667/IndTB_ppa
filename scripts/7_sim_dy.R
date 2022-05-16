@@ -46,4 +46,6 @@ ys[nrow(ys), c("det_pub", "det_eng", "det_pri")]
 c(d$DetR_pub, d$DetR_eng, d$DetR_pri)
 
 
+ys[, "PrevUT"]
+
 

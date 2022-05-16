@@ -17,6 +17,7 @@ inc <- (r_sc + r_die_asym) * PrevA + (r_sc + r_die_sym) * (PrevS + PrevC + sum(P
 
 
 output(Prev) <- PrevA + PrevS + PrevC + sum(PrevE) + sum(PrevTx)
+output(PrevUT) <- PrevA + PrevS + PrevC + sum(PrevE)
 
 initial(PrevA) <- prev0
 initial(PrevS) <- 0

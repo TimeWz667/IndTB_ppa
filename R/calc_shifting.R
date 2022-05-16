@@ -172,6 +172,8 @@ extract_referrals <- function(trm, loc) {
 
 
 vis_referrals <- function(stocks, flows, bar.width=20, interval=70, n.step=50) {
+  require(tidyverse)
+  
   sts.n <- 3
   width <- sts.n * bar.width + (sts.n-1) * interval
   

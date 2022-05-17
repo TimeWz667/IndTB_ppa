@@ -1,0 +1,66 @@
+library(tidyverse)
+library(tidybayes)
+
+theme_set(theme_bw() + theme(text = element_text(family = "sans")))
+
+
+labels <- c(
+  Cas0 = "Sympton Developed", Cas1 = "Symptom Noticed", Cas2 = "Consulted", 
+  Cas3 = "Diagnosed", Cas4 = "Tx initialised", Cas5 = "Tx Successful"
+)
+
+
+ext <- glue::as_glue(".png")
+
+
+for (scenario in c("shared_pr_asym", "shared_r_onset")) {
+  for (cnr_year in 2019:2021) {
+    folder <- glue::as_glue("cas_") + cnr_year
+    file_cascades <- glue::as_glue("cascades_shifting_") + scenario + ".rdata"
+    load(here::here("out", folder, file_cascades))
+    
+    folder <- folder + "_" + scenario
+    dir.create(here::here("results", folder), showWarnings = F)
+    
+    loc <- unique(cascades_shifting$Location)
+    loc <- c("India", loc[loc != "India"])
+    
+    
+    cas <- cascades_shifting %>% 
+      select(Location, starts_with("Cas")) %>% 
+      pivot_longer(-Location, names_to = "Stage") %>% 
+      group_by(Location, Stage) %>% 
+      summarise(
+        M = median(value),
+        L = quantile(value, 0.025),
+        U = quantile(value, 0.975)
+      ) %>% 
+      ungroup() %>% 
+      mutate(Location = factor(Location, loc))
+    
+    
+    cas %>% 
+      mutate(
+        MCI = sprintf("%s (%s-%s)", scales::percent(M), scales::percent(L), scales::percent(U))
+      ) %>% 
+      select(-M, -L, -U) %>% 
+      pivot_wider(names_from = Stage, values_from = MCI) %>% 
+      arrange(Location) %>% 
+      write_csv(here::here("results", folder, "CascadeShifting.csv"))
+    
+    
+    g <- cas %>% 
+      ggplot() +
+      geom_bar(aes(x = Stage, y = M, fill = Stage), stat = "identity") +
+      geom_linerange(aes(x = Stage, ymin = L, ymax = U)) +
+      scale_x_discrete(labels = labels) + 
+      scale_y_continuous("Arrival, %", labels = scales::percent, limits = 0:1) +
+      guides(fill = guide_none(), colour = guide_none()) +
+      facet_wrap(.~Location) +
+      theme(axis.text.x = element_text(angle = -50, hjust = 0), plot.margin = margin(5, 30, 5, 5)) +
+      labs(caption = sprintf("Year: %d, Assumption: %s", cnr_year, scenario))
+    
+    ggsave(g, filename = here::here("results", folder, "g_cascade_shifting" + ext), width = 8, height = 8)  
+    
+  }
+}

@@ -73,4 +73,4 @@ ys <- cm$run(seq(0, 100, 0.1))
 ys[nrow(ys), c("det_pub", "det_eng", "det_pri")]; 
 det1
 ys[nrow(ys), "prev_e"]; 
-d$Prev_E    
+  

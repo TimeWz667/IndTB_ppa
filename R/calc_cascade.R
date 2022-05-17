@@ -92,3 +92,58 @@ calc_cascade <- function(df) {
       starts_with("Delay"), starts_with("Drop"))
   
 }
+
+
+calc_cascade_shifting <- function(pars, m_cascade) {
+  require(tidyverse)
+  
+  ks <- pars$Rates %>% pull(Key) %>% unique()
+  
+  bind_rows(lapply(ks, function(k) {
+    d <- pars$Rates %>% filter(Key == k) %>% as.list()
+    
+    inp <- c(list(
+      r_sc = d$r_sc,
+      r_die_asym = d$r_die_asym,
+      r_die_sym = d$r_die_sym,
+      r_onset = d$r_onset,
+      r_aware = d$r_aware,
+      r_csi = d$r_cs,
+      r_recsi = d$r_recsi,
+      p_txi = c(d$TxI_pub, d$TxI_eng, d$TxI_pri),
+      r_succ = c(d$r_succ_pub, d$r_succ_eng, d$r_succ_pri),
+      r_ltfu = c(d$r_ltfu_pub, d$r_ltfu_eng, d$r_ltfu_pri),
+      r_die_tx = c(d$r_dead_pub, d$r_dead_eng, d$r_dead_pri)
+    ), pars$Shifting)
+    
+    
+    ###
+    cm <- m_cascade$new(user = inp)
+    
+    ys <- cm$run(seq(0, 10, 0.01))
+    dt <- diff(ys[, "t"])[1]
+    t_end <- max(ys[, "t"])
+    ys <- as_tibble(as.data.frame(ys))
+    
+    ys %>% 
+      summarise(
+        across(starts_with("Cas"), function(x) x[length(x)]),
+        across(starts_with("Drop"), function(x) x[length(x)]),
+        DurAsym = sum(PrevA) * dt,
+        DurNA = sum(PrevS) * dt / Cas0,
+        DurNC = sum(PrevC) * dt / Cas1,
+        DurCS = sum(`PrevE[1]` + `PrevE[2]` + `PrevE[3]`) * dt / (Cas2 - Cas3_0)
+      ) %>% 
+      mutate(
+        pr_sys = Cas3_1 / Cas3,
+        TTSym = DurAsym,
+        TTAware = TTSym + DurNA,
+        TTCare = TTAware + DurNC,
+        TTDet = TTCare + DurCS * pr_sys,
+        DelayPatient = DurNC + DurNA,
+        DelaySystem = DurCS * pr_sys,
+        DelayTotal = DelayPatient + DelaySystem
+      )
+  }))
+}
+

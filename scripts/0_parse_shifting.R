@@ -1,7 +1,7 @@
 library(tidyverse)
 
 
-txt = read_file(here::here("data", "shifting"))
+txt = read_file(here::here("data", "shifting", "shifting.txt"))
 
 
 entries <- strsplit(txt, "\r\n")[[1]]
@@ -29,7 +29,7 @@ shifting <- bind_rows(lapply(entries, function(ent) {
   )
 }))
 
-save(shifting, file = here::here("data", "shifting.rdata"))
+save(shifting, file = here::here("data", "shifting","shifting.rdata"))
 
 
 

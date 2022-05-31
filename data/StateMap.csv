@@ -1,0 +1,29 @@
+State,StateGroup,Region,AmpAll,P1,P0
+India,India,India,1.026315789,312,304
+Andhra Pradesh,Andhra_Pradesh,Southern,0.904290429,274,303
+Arunachal Pradesh,North_Eastern_States,Northeastern,0.971631206,274,282
+Assam,North_Eastern_States,Northeastern,0.971631206,274,282
+Bihar,Bihar,Eastern,0.790909091,261,330
+Chandigarh,Punjab,Northern,1.137681159,314,276
+Chhatisgarh,Chhatisgarh,Central,1.008948546,451,447
+Delhi,Delhi,Northern,1.458984375,747,512
+Gujarat,Gujarat,Western,1.007352941,137,136
+Haryana,Haryana,Northern,1.133016627,477,421
+Himachal Pradesh,HP_UK_JK,Northern,1.235294118,378,306
+Jammu & Kashmir,HP_UK_JK,Northern,1.235294118,378,306
+Jharkhand,Jharkhand,Eastern,0.822857143,288,350
+Karnataka,Karnataka,Southern,1.178294574,304,258
+Kerala,Kerala,Southern,1.15503876,149,129
+Madhya Pradesh,Madhya_Pradesh,Central,0.875324675,337,385
+Maharashtra,Maharashtra,Western,1.220858896,199,163
+Manipur,North_Eastern_States,Northeastern,0.971631206,274,282
+Meghalaya,North_Eastern_States,Northeastern,0.971631206,274,282
+Nagaland,North_Eastern_States,Northeastern,0.971631206,274,282
+Odisha,Odisha,Eastern,0.972440945,247,254
+Punjab,Punjab,Northern,1.137681159,314,276
+Rajasthan,Rajasthan,Northern,0.90376569,432,478
+Tamil Nadu,Tamil_Nadu,Southern,1.102739726,322,292
+Telangana,Telangana,Southern,1.116981132,296,265
+Uttar Pradesh,Uttar_Pradesh,Northern,0.891440501,427,479
+Uttarakhand,HP_UK_JK,Northern,1.235294118,378,306
+West Bengal,West_Bengal,Eastern,1.005617978,179,178

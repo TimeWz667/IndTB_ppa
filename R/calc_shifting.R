@@ -71,7 +71,7 @@ find_r_recsi <- function(d, sim_shifting) {
   pdi1 <- pdi[1:3, ]
   
   det0 <- d$r_cs * entry * pdi0 * d$Prev_C
-  fn0 <- d$r_cs * entry * (1 -pdi0) * d$Prev_C
+  fn0 <- d$r_cs * entry * (1 - pdi0) * d$Prev_C
   
   det1 <- c(d$DetR_pub, d$DetR_eng, d$DetR_pri) - det0
   

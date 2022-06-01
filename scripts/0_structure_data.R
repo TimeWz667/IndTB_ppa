@@ -19,7 +19,7 @@ dat_tbps <- read_csv(here::here("data", "TBPS_State.csv")) %>%
 
 dat_nikshay2019 <- dat_nikshay %>% 
   filter(State %in% dat_tbps$State) %>% 
-  select(State, 
+  select(State, Pop,
          CNR_pub = CNR_public_2019, CNR_eng = CNR_private_2019,
          TxI_pub = TxI_public_2019, TxI_eng = TxI_private_2019,
          TxSucc_pub = TxSucc_public_2019, TxSucc_eng = TxSucc_private_2019,
@@ -38,7 +38,7 @@ dat_nikshay2019 <- dat_nikshay %>%
 
 dat_nikshay2020 <- dat_nikshay %>% 
   filter(State %in% dat_tbps$State) %>% 
-  select(State, 
+  select(State, Pop,
          CNR_pub = CNR_public_2020, CNR_eng = CNR_private_2020,
          TxI_pub = TxI_public_2019, TxI_eng = TxI_private_2019,
          TxSucc_pub = TxSucc_public_2019, TxSucc_eng = TxSucc_private_2019,
@@ -57,7 +57,7 @@ dat_nikshay2020 <- dat_nikshay %>%
 
 dat_nikshay2021 <- dat_nikshay %>% 
   filter(State %in% dat_tbps$State) %>% 
-  select(State, 
+  select(State, Pop,
          CNR_pub = CNR_public_2021, CNR_eng = CNR_private_2021,
          TxI_pub = TxI_public_2019, TxI_eng = TxI_private_2019,
          TxSucc_pub = TxSucc_public_2019, TxSucc_eng = TxSucc_private_2019,

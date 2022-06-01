@@ -94,10 +94,11 @@ calc_cascade <- function(df) {
 }
 
 
-calc_cascade_shifting <- function(pars, m_cascade) {
+calc_cascade_shifting <- function(pars, m_cascade, maxiter = 100) {
   require(tidyverse)
   
   ks <- pars$Rates %>% pull(Key) %>% unique()
+  ks <- ks[ks <= maxiter]
   
   bind_rows(lapply(ks, function(k) {
     d <- pars$Rates %>% filter(Key == k) %>% as.list()

@@ -22,4 +22,5 @@
 
 
 out/
-
+results/legacy
+.idea/

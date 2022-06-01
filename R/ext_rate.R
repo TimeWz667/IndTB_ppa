@@ -22,13 +22,14 @@ ext_rate <- function(df, exo, settings) {
         r_dead_pub = r_succ_pub / TxSucc_pub * TxDead_pub,
         r_ltfu_eng = r_succ_eng / TxSucc_eng * TxLTFU_eng,
         r_dead_eng = r_succ_eng / TxSucc_eng * TxDead_eng,
-        r_ltfu_pri = r_succ_pri / TxSucc_eng * TxLTFU_eng,
+        r_ltfu_pri = r_succ_pri / TxSucc_eng * TxLTFU_eng * rr_ltfu_pri,
         r_dead_pri = r_succ_pri / TxSucc_eng * TxDead_eng,
         
         Prev_Tx_Pub = TxR_pub / (r_succ_pub + r_ltfu_pub + r_dead_pub),
         Prev_Tx_Eng = TxR_eng / (r_succ_eng + r_ltfu_eng + r_dead_eng),
         Prev_Tx_Pri = PrevTx - Prev_Tx_Pub - Prev_Tx_Eng,
         Prev_Tx_Pri = ifelse(Prev_Tx_Pri < 0, 0, Prev_Tx_Pri),
+        Prev_Tx_Pri = Prev_Tx_Pri * ppv_pri,
         TxR_pri = Prev_Tx_Pri * (r_succ_pri + r_ltfu_pri + r_dead_pri),
         
         DetR_pub = CNR_pub,

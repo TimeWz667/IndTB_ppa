@@ -10,8 +10,7 @@ each <- 5
 for(cnr_year in 2019:2021) {
   folder <- glue::as_glue("cas_") + cnr_year
   
-  for(scenario in c("shared_pr_asym", "shared_r_onset")) {
-    file_shift <- glue::as_glue("shifting_") + scenario + ".rdata"
+    file_shift <- "pars_shifting.rdata"
     load(file = here::here("out", folder, file_shift))
     locs <- names(pars_shifting)
     
@@ -53,7 +52,7 @@ for(cnr_year in 2019:2021) {
       )
     
     
-    save(sims_pp, file = here::here("out", folder, "sims_pp_" + glue::as_glue(scenario) + ".rdata"))
-  }
+    save(sims_pp, file = here::here("out", folder, "sims_pp.rdata"))
+
 }
 

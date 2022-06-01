@@ -29,8 +29,8 @@ shifting <- bind_rows(lapply(entries, function(ent) {
   )
 }))
 
-save(shifting, file = here::here("data", "shifting","shifting.rdata"))
-
+save(shifting, file = here::here("data", "shifting", "shifting.rdata"))
+write_csv(shifting, here::here("data", "shifting", "shifting.csv"))
 
 
 shifting %>% 

@@ -23,13 +23,11 @@ dur_labels <- c(
 
 
 
-for (scenario in c("shared_pr_asym", "shared_r_onset")) {
   for (cnr_year in 2019:2021) {
     folder <- glue::as_glue("cas_") + cnr_year
-    file_cascades <- glue::as_glue("cascades_shifting_") + scenario + ".rdata"
-    load(here::here("out", folder, file_cascades))
+
+    load(here::here("out", folder, "cascades_shifting.rdata"))
     
-    folder <- folder + "_" + scenario
     dir.create(here::here("results", folder), showWarnings = F)
     
     
@@ -112,7 +110,7 @@ for (scenario in c("shared_pr_asym", "shared_r_onset")) {
       expand_limits(x = 0) +
       theme(legend.position = c(1, 0), legend.just = c(1.2, -0.3)) +
       guides(color = guide_legend(reverse=TRUE)) +
-      labs(caption = sprintf("Year: %d, Assumption: %s", cnr_year, scenario))
+      labs(caption = sprintf("Year: %d", cnr_year))
      
     ggsave(g, filename = here::here("results", folder, "g_tte_shifting") + ext, width = 7, height = 8)  
     
@@ -128,12 +126,12 @@ for (scenario in c("shared_pr_asym", "shared_r_onset")) {
       scale_x_continuous("Precentage, %", labels = scales::percent) +
       guides(fill = guide_legend(reverse = TRUE)) + 
       theme(legend.position = "bottom") +
-      labs(caption = sprintf("Year: %d, Assumption: %s", cnr_year, scenario))
+      labs(caption = sprintf("Year: %d", cnr_year))
     
     
     ggsave(g, filename = here::here("results", folder, "g_spent_shifting" + ext), width = 7, height = 8)  
     
   }
-}
+
 
 

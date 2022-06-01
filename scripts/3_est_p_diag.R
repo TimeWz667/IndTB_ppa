@@ -8,13 +8,13 @@ source(here::here("R", "calc_shifting.R"))
 assumed_pdi_pri <- 0.5
 
 ## Prepare data target
-load(here::here("out", "cas_2019", "rates_shared_pr_asym.rdata"))
+load(here::here("out", "cas_2019", "rates.rdata"))
 
 
 det <- rates %>% 
-  filter(Location == "Tamil_Nadu") %>% 
-  select(starts_with("DetR_")) %>% 
-  distinct() %>% 
+  filter(Location == "Tamil Nadu") %>% 
+  select(starts_with("DetR_")) %>%
+  summarise(across(everything(), mean)) %>% 
   pivot_longer(everything()) %>% 
   separate(name, c("Index", "sector"), "_") %>% 
   mutate(
@@ -29,7 +29,7 @@ n_visits <- 2.75 # from Muniyandi et al. 2020
 
 ##
 
-load(here::here("data", "shifting_mat.rdata"))
+load(here::here("data", "shifting", "shifting_mat.rdata"))
 
 
 mat0 <- tapply(tr_mat$Pr, list(tr_mat$From, tr_mat$To), sum)
@@ -139,14 +139,16 @@ names(locs) <- locs
 
 for (cnr_year in 2019:2021) {
   folder <- paste0("cas_", cnr_year)
-  file_rates <- glue::as_glue("rates_") + scenario + ".rdata"
-  load(here::here("out", folder, file_rates))
+
+  load(here::here("out", folder, "rates.rdata"))
   
   sim_shifting <- lapply(locs, function(loc) {
+    print(loc)
     det <- rates %>% 
       filter(Location == loc) %>% 
       select(starts_with("DetR_")) %>% 
-      distinct() %>% 
+      summarise(across(everything(), mean)) %>%  
+      mutate(DetR_eng = pmax(DetR_eng, 1e-5), DetR_pri = pmax(DetR_pri, 1e-5)) %>% 
       pivot_longer(everything()) %>% 
       separate(name, c("Index", "sector"), "_") %>% 
       mutate(

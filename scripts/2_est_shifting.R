@@ -1,7 +1,7 @@
 library(tidyverse)
 
 
-load(here::here("data", "shifting.rdata"))
+load(here::here("data", "shifting", "shifting.rdata"))
 
 
 tr_mat <- shifting %>% 
@@ -13,4 +13,4 @@ tr_mat <- shifting %>%
     To = ifelse(To == "det", "pub_det", To)
   )
 
-save(tr_mat, file = here::here("data", "shifting_mat.rdata"))
+save(tr_mat, file = here::here("data", "shifting", "shifting_mat.rdata"))

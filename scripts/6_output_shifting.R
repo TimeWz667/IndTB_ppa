@@ -38,13 +38,16 @@ for (cnr_year in 2019:2021) {
     ref$bands %>% mutate(Location = ref$Location)
   }))
   
+  labx <- stocks %>% 
+    mutate(xs = (x0 + x1) / 2) %>% 
+    select(xs, Stage) %>% distinct()
   
-  g <- ggplot(stocks) +
+  g <- ggplot(stocks %>% filter(Location != "India")) +
     geom_rect(aes(xmin = x0, xmax = x1, ymin = y0, ymax = y1, fill = Sector), 
               colour = "grey7") +
-    geom_ribbon(data=bands, aes(x=xs, ymin=ys.lower, ymax=ys.upper, group = Key), 
+    geom_ribbon(data=bands %>% filter(Location != "India"), aes(x=xs, ymin=ys.lower, ymax=ys.upper, group = Key), 
                 colour = "grey7", fill="darkgreen", alpha=0.3) +
-    scale_x_continuous("Stage", breaks = labels_x$x, 
+    scale_x_continuous("Stage", breaks = labx$xs, 
                        labels = c("Initial visit", "Second visit", "Diagnosis")) +
     scale_fill_discrete("Sector", 
                         labels = c(pri = "Private", eng = "Engaged Private", pub = "Public")) +
@@ -53,9 +56,8 @@ for (cnr_year in 2019:2021) {
   ggsave(g, filename = here::here("results", folder, "g_shift.png"), width = 12, height = 12)
   
   for(i in 1:length(refs)) {
-    loc <- glue::as_glue(ref$Location)
-    
     ref <- refs[[i]]
+    loc <- glue::as_glue(ref$Location)
     g <- ref$g +
       labs(caption = loc)
     

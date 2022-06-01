@@ -27,7 +27,7 @@ n_visits <- 2.75 # from Muniyandi et al. 2020
 
 ##
 
-load(here::here("data", "shifting_mat.rdata"))
+load(here::here("data", "shifting", "shifting_mat.rdata"))
 
 
 mat0 <- tapply(tr_mat$Pr, list(tr_mat$From, tr_mat$To), sum)

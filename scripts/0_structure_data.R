@@ -76,33 +76,31 @@ dat_nikshay2021 <- dat_nikshay %>%
 
 d_tbps <- dat_tbps %>% 
   mutate(
-    Prev = N_TB0 / N * AmpAll,
+    PrevUt = N_TB0 / N * AmpAll,
     PrevTx = N_OnATT2 / N * AmpAll,
-    Prev_Std = sqrt(Prev * (1 - Prev) / N),
-    PrevTx_Std = sqrt(PrevTx * (1 - PrevTx) / N),
-    across(c(Prev, Prev_Std, PrevTx, PrevTx_Std), function(x) x * 1e5),
+    across(c(PrevUt, PrevTx), function(x) x * 1e5),
     Pr_Asym = N_Asym / N_TB0,
     Sym = NotAware0 + NotCS0 + NotDet0,
     Pr_NotAware = (1 - Pr_Asym) * NotAware0 / Sym,
     Pr_NotCS = (1 - Pr_Asym) * NotCS0 / Sym,
-    Pr_NotDet0 = (1 - Pr_Asym) * NotDet0 / Sym
+    Pr_NotDet = (1 - Pr_Asym) * NotDet0 / Sym
   ) %>% 
-  select(Region, State, starts_with("Prev"), starts_with("Pr_"))
+  select(Region, State, N, starts_with("Prev"), starts_with("Pr_"))
 
 
 
 
 d_cascade <- d_tbps %>% left_join(dat_nikshay2019)
-
 save(d_cascade, file = here::here("data", "cascade", "d_cascade_2019.rdata"))
+write_csv(d_cascade, here::here("data", "cascade", "d_cascade_2019.csv"))
 
 
 d_cascade <- d_tbps %>% left_join(dat_nikshay2020)
-
 save(d_cascade, file = here::here("data", "cascade", "d_cascade_2020.rdata"))
+write_csv(d_cascade, here::here("data", "cascade", "d_cascade_2020.csv"))
 
 
 d_cascade <- d_tbps %>% left_join(dat_nikshay2021)
-
 save(d_cascade, file = here::here("data", "cascade", "d_cascade_2021.rdata"))
+write_csv(d_cascade, here::here("data", "cascade", "d_cascade_2021.csv"))
 

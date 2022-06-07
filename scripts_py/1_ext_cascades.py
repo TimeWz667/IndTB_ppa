@@ -47,6 +47,5 @@ if __name__ == '__main__':
 
             cascades.append(cascade.dict())
 
-
         with open(f'{folder}/Cascade_{loc}.json', 'w') as f:
             json.dump(cascades, f)

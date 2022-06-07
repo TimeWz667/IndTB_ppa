@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 import numpy as np
-from scipy.optimize import minimize
+from scipy.optimize import minimize_scalar
 from scipy import linalg
 from ppa.rates import Rates
 from ppa.shifting import Shifting
@@ -13,7 +13,7 @@ class Cascade(BaseModel):
     R_SelfCure: float = 0
     R_Die_Asym: float = 0
     R_Die_Sym: float = 0
-    R_Die_Tx: list
+    R_Die_Tx: list = 0
 
     R_Onset: float
     R_Aware: float
@@ -74,11 +74,11 @@ def find_recsi(shf: Shifting, rates: Rates):
     trm, pdx1 = shf.P_Tr, shf.P_Dx1
     mu = rates.R_Die_Sym + rates.R_SelfCure
 
-    def fn(r_recsi, trm, pdx1, mu, fn0):
-        pe = linalg.solve(r_recsi * (trm * pdx1).T - np.eye(3) * (r_recsi + mu), -fn0)
-        return np.hypot(rates.PrevE, pe.sum())
+    def fn(x, trm, pdx1, mu, fn0, exp_pe):
+        pe = linalg.solve(x * (trm * (1 - pdx1)).T - np.eye(3) * (x + mu), -fn0)
+        return (exp_pe - pe.sum()) ** 2
 
-    opt = minimize(fn, x0=0, args=(trm, pdx1, mu, fn0,))
+    opt = minimize_scalar(fn, args=(trm, pdx1, mu, fn0, rates.PrevE, ), method = 'bounded', bounds=(0, 50))
     r_recsi = opt.x
     if r_recsi < 0:
         raise ValueError

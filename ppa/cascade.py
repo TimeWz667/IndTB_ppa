@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import numpy as np
 from scipy.optimize import minimize_scalar
 from scipy import linalg
@@ -10,61 +10,73 @@ __all__ = ['Cascade', 'bind_cascade']
 
 
 class Cascade(BaseModel):
-    R_SelfCure: float = 0
-    R_Die_Asym: float = 0
-    R_Die_Sym: float = 0
-    R_Die_Tx: list = 0
+    IncR: float
+    R_SelfCure: float
+    R_Die_Asym: float
+    R_Die_Sym: float
+    R_Die_Tx: np.ndarray = Field(default_factory=lambda: np.zeros(3))
 
     R_Onset: float
     R_Aware: float
     R_CSI: float
     R_ReCSI: float
 
-    P_Entry: list
-    P_Tr: list
-    P_Dx0: list
-    P_Dx1: list
+    P_Entry: np.ndarray = Field(default_factory=lambda: np.zeros(3))
+    P_Tr: np.ndarray = Field(default_factory=lambda: np.zeros((3, 3)))
+    P_Dx0: np.ndarray = Field(default_factory=lambda: np.zeros(3))
+    P_Dx1: np.ndarray = Field(default_factory=lambda: np.zeros((3, 3)))
 
-    P_TxI: list
+    P_TxI: np.ndarray = Field(default_factory=lambda: np.zeros(3))
 
-    R_Succ_Tx: list
-    R_LTFU_Tx: list
+    R_Succ_Tx: np.ndarray = Field(default_factory=lambda: np.zeros(3))
+    R_LTFU_Tx: np.ndarray = Field(default_factory=lambda: np.zeros(3))
 
-    PrevUt: float
-    PrevTx: list
-    DetR: list
+    PPV: np.ndarray = Field(default_factory=lambda: np.zeros(3))
 
-    PPV: list
+    class Config:
+        arbitrary_types_allowed = True
 
-    def revive(self):
-        self.P_Entry = np.array(self.P_Entry)
-        self.P_Tr = np.array(self.P_Tr)
-        self.P_Dx0 = np.array(self.P_Dx0)
-        self.P_Dx1 = np.array(self.P_Dx1)
+    @staticmethod
+    def parse_json(rs):
+        rs = {k: (np.array(v) if isinstance(v, list) else v) for k, v in rs.items()}
+        return Cascade.parse_obj(rs)
 
-        self.R_Succ_Tx = np.array(self.R_Succ_Tx)
-        self.R_LTFU_Tx = np.array(self.R_LTFU_Tx)
-        self.R_Die_Tx = np.array(self.R_Die_Tx)
+    def match_targets(self):
+        p_a = self.IncR / (self.R_Onset + self.R_Die_Asym + self.R_SelfCure)
+        p_s = (self.R_Onset * p_a) / (self.R_Aware + self.R_Die_Sym + self.R_SelfCure)
+        p_c = (self.R_Aware * p_s) / (self.R_CSI + self.R_Die_Sym + self.R_SelfCure)
 
-        self.PrevTx = np.array(self.PrevTx)
-        self.DetR = np.array(self.DetR)
-        self.P_TxI = np.array(self.P_TxI)
+        cs0 = self.R_CSI * p_c * self.P_Entry
+        fn0 = cs0 * (1 - self.P_Dx0)
+        det0 = cs0 * self.P_Dx0
 
-        self.PPV = np.array(self.PPV)
+        mu = self.R_ReCSI + self.R_Die_Sym + self.R_SelfCure
 
-    def calc_prop_det(self, tol=1e-8):
-        det = self.P_Entry * self.P_Dx0
-        x = self.P_Entry * (1 - self.P_Dx0)
+        p_e_hs = linalg.solve(self.R_ReCSI * (self.P_Tr * (1 - self.P_Dx1)).T - np.eye(3) * mu, -fn0)
+        p_e = p_e_hs.sum()
 
-        while x.sum() > tol:
-            tr0 = self.P_Tr * x.reshape((-1, 1))
-            tp, fp = tr0 * self.P_Dx1, tr0 * (1 - self.P_Dx1)
+        det1 = (self.R_ReCSI * self.P_Tr * self.P_Dx1 * p_e_hs).sum(0)
+        det = det0 + det1
 
-            det += tp.sum(0)
+        det_all = det / self.PPV
+        tx = det_all * self.P_TxI
 
-            x = fp.sum(0)
+        dur = 1 / (self.R_LTFU_Tx + self.R_Succ_Tx + self.R_Die_Tx)
 
-        return det.reshape(-1) / det.sum()
+        return {
+            'IncR': self.IncR,
+            'PrevAsym': p_a,
+            'PrevNotAware': p_s,
+            'PrevNotCS': p_c,
+            'PrevNotDet': p_e,
+            'Prev': p_a + p_s + p_c + p_e,
+            'CNR_Pub': det_all[0],
+            'CNR_Eng': det_all[1],
+            'Det_Pri': det[2],
+            'PrTxi_pri': self.P_TxI[2],
+            'Dur_Pub': dur[0],
+            'Dur_Eng': dur[1]
+        }
 
 
 def find_recsi(shf: Shifting, rates: Rates):

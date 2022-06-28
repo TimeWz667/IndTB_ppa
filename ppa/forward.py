@@ -66,14 +66,18 @@ class CascadeForward:
 
         self.CNR = self.DetR / self.PPV
         self.TxR = self.CNR * self.P_TxI
-
-        LTFU = np.array([d.TxLTFU_pub, d.TxLTFU_eng, d.TxLTFU_eng * pars['rr_ltfu_pri']])
+        odd_pr = pars['odds_pri']
+        LTFU = np.array([d.TxLTFU_pub, d.TxLTFU_eng, d.TxLTFU_eng])
         Succ = np.array([d.TxSucc_pub, d.TxSucc_eng, d.TxSucc_eng])
         Die = np.array([d.TxDead_pub, d.TxDead_eng, d.TxDead_eng])
 
         self.R_Succ_Tx = np.array([pars['r_succ_pub'], pars['r_succ_eng'], pars['r_succ_pri']])
         self.R_LTFU_Tx = self.R_Succ_Tx * LTFU / Succ
         self.R_Die_Tx = self.R_Succ_Tx * Die / Succ
+        self.R_Die_Tx[2] = self.R_Die_Tx[1]
+        pr_ltfu_pri = self.R_LTFU_Tx[1] / (self.R_LTFU_Tx[1] + self.R_Succ_Tx[1]) * odd_pr
+        self.R_LTFU_Tx[2] = pr_ltfu_pri / (1 - pr_ltfu_pri) * (self.R_Die_Tx[2] + self.R_Succ_Tx[2])
+
         self.DurTx = 1 / (self.R_LTFU_Tx + self.R_Die_Tx + self.R_Succ_Tx)
 
         self.PrevTx = self.DetR * self.P_TxI * self.DurTx
@@ -166,7 +170,7 @@ def get_prior():
             r_succ_pri = 1 / dur_succ_pri
 
             ppm ~ unif(0, 1)
-            odds_pri ~ unif(0.5, 5)
+            odds_pri ~ unif(0.25, 0.81)
             tr_pub_pub ~ unif(0, 1)
             tr_pri_pub ~ unif(0, 1)
 

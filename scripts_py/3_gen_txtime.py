@@ -3,6 +3,7 @@ import pandas as pd
 from pydantic import BaseModel, Field
 import numpy as np
 from scipy import linalg
+import numpy.random as rd
 import os
 
 
@@ -54,10 +55,14 @@ class CascadeRates(BaseModel):
 
         det = det0 + (self.R_ReCSI * trm * pdx1 * prev_e).sum(0)
 
-        cnr = det / self.PPV
+        r_to = self.R_LTFU_Tx + self.R_Succ_Tx + self.R_Die_Tx
+        # r_to[2] /= 1.5
+        ppv = self.PPV.copy()
+        # ppv[2] /= 1.5
+
+        cnr = det / ppv
         txi = cnr * self.P_TxI
 
-        r_to = self.R_LTFU_Tx + self.R_Succ_Tx + self.R_Die_Tx
         dur_tx = 1 / r_to
 
         prev_t = det * self.P_TxI * dur_tx
@@ -67,16 +72,20 @@ class CascadeRates(BaseModel):
         return {
             'ratio_pe_p': prev_pos[2:].sum() / prev_pos[:2].sum(),
             'ratio_p_ep': prev_pos[1:].sum() / prev_pos[:1].sum(),
-            'ppv_pri': self.PPV[2],
+            'ppv_pri': ppv[2],
             'dur_tx_pri': dur_tx[2],
+            'txi_pri': txi[2],
             'cnr_pub': cnr[0],
             'cnr_eng': cnr[1],
+            'cnr_pri': cnr[2],
             'prev_a': prev_a,
             'prev_s': prev_s,
             'prev_c': prev_c,
             'prev_e': prev_e.sum(),
             'prev_ut': prev_a + prev_s + prev_c + prev_e.sum(),
             'prev_pos_pri': prev_pos[2],
+            'prev_pos_eng': prev_pos[1],
+            'prev_pos_pub': prev_pos[1],
             'prev_pos': prev_pos.sum()
         }
 
@@ -89,6 +98,11 @@ for src in os.listdir("../out/cf_pars"):
 
     with open(f'../out/cf_pars/{src}', 'r') as f:
         pars = json.load(f)
+
+    incs = np.array([p['IncR'] for p in pars])
+    rd.shuffle(incs)
+    for inc, p in zip(incs, pars):
+        p['IncR'] = inc
 
     for i, p in enumerate(pars):
         sim = CascadeRates.parse_json(p).simulate()
@@ -103,6 +117,11 @@ for src in os.listdir("../out/cft_pars"):
     with open(f'../out/cft_pars/{src}', 'r') as f:
         pars = json.load(f)
 
+    incs = np.array([p['IncR'] for p in pars])
+    rd.shuffle(incs)
+    for inc, p in zip(incs, pars):
+        p['IncR'] = inc
+
     for i, p in enumerate(pars):
         sim = CascadeRates.parse_json(p).simulate()
         sim['Location'] = loc
@@ -111,4 +130,4 @@ for src in os.listdir("../out/cft_pars"):
         mss.append(sim)
 
 mss = pd.DataFrame(mss)
-mss.to_csv('../out/tx_time.csv', index=False)
+mss.to_csv('../out/tx_time1.csv', index=False)

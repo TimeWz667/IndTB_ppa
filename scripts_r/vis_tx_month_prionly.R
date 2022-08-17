@@ -30,17 +30,85 @@ sim <- bind_rows(
 ) 
 
 
+sim0
+
+
+
 g1 <- sim %>% 
+  filter(PrDetPri / PrDetEng < 5) %>% 
   ggplot() + 
-  geom_point(aes(x = PpvPri, y = PrDetPri, colour = Scenario)) +
+  geom_point(aes(x = PpvPri, y = PrDetPri / PrDetEng, colour = Scenario), alpha = 0.7) +
   scale_y_continuous("Cases detected by unengaged private system %, true TB", label = scales::percent) +
   scale_x_continuous("PPV %, unengaged private", label = scales::percent) +
   expand_limits(x = 0:1, y = 0:1)
 
 g1
+
+g1 <- sim %>% 
+  ggplot() + 
+  geom_point(aes(x = PpvPri, y = DurTxPri, colour = Scenario)) +
+  scale_y_continuous("Tx duration by private system") +
+  scale_x_continuous("PPV %, unengaged private", label = scales::percent) +
+  expand_limits(x = 0:1, y = 0:1)
+
+g1
+
+
+
+g1 <- sim %>% 
+  ggplot() + 
+  geom_point(aes(x = PpvPri, y = PrDetPri / (PrDetPri + PrDetEng), colour = Scenario)) +
+  scale_y_continuous("Tx duration by private system") +
+  scale_x_continuous("PPV %, unengaged private", label = scales::percent) +
+  expand_limits(x = 0:1, y = 0:1)
+
+g1
+
+
+g1 <- sim %>% 
+  ggplot() + 
+  geom_density(aes(x = PpvPri, colour = Scenario)) +
+  scale_x_continuous("Proportion cases detected by unengaged private", label = scales::percent) +
+  expand_limits(x = 0:1, y = 0:1)
+
+g1
+
+g1 <- sim %>% 
+  ggplot() + 
+  geom_density(aes(x = PpvPri, colour = Scenario)) +
+  scale_x_continuous("PPV %, unengaged private", label = scales::percent) +
+  expand_limits(x = 0:1, y = 0:1)
+
+g1
+
 # sim %>% 
 #   ggplot() +
 #   geom_density(aes(x = PrOnPriDrug, fill = Scenario), alpha = 0.3)
+
+
+sim %>% 
+  ggplot() +
+  geom_point(aes(x = DrugTimeEng, y = DrugTimePri, colour = Scenario))
+
+
+sim %>% 
+  ggplot() +
+  geom_point(aes(x = DrugTimeEng, 
+                 y = CnrEng * (PrDetPri / PrDetEng) / PpvPri * TxiPri * DurTxPri, colour = Scenario))
+
+
+plot(sim %>%
+       select(TxIni=TxiPri, PPV=PpvPri, PPM=PrDetEng), col = ifelse(sim$Scenario == "No drug-sale data", 2, 4))
+
+sim %>% 
+  ggplot() +
+  geom_point(aes(y = DrugTimeEng, 
+                 x =CnrEng * (PrDetPri / PrDetEng) / PpvPri * TxiPri * DurTxPri , colour = Scenario)) +
+  scale_x_continuous("Cases * treatment init / PPV * Duration, unengaged private, per 100k",
+                     label = scales::number_format(scale = 1e5)) + 
+  scale_y_continuous("Prevalence, engaged private, per 100k",
+                     label = scales::number_format(scale = 1e5))
+
 
 
 g2 <- sim %>% 
@@ -99,12 +167,17 @@ g4 <- sim %>%
   # geom_density_2d(aes(x = DrugTimeEng + DrugTimePri, y = OnPriDrug, colour = Scenario)) +
   geom_vline(xintercept = dat$PrevTxPri) +
   geom_hline(yintercept = dat$DrugTime_M) +
+  geom_hline(yintercept = dat$DrugTime_L, linetype = 2) +
+  geom_hline(yintercept = dat$DrugTime_U, linetype = 2) +
   scale_x_continuous("Prevalent cases on private TB service per 100k", label=scales::number_format(scale = 1e5)) +
   scale_y_continuous("Patient months of private TB treatment per 100k", label=scales::number_format(scale = 12e5)) +
   scale_colour_discrete("Target: TBPS + CNR") +
   facet_grid(.~Fil) +
   expand_limits(x = 0, y = 0)
 
+
+g3
+g4
 
 
 ggsave(g1, filename = here::here("docs", "gds1.png"), width = 8, height = 6.5)

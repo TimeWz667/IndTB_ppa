@@ -7,6 +7,11 @@ theme_set(theme_bw() + theme(text = element_text(family = "sans")))
 
 # Drug sale data
 
+cas <- read_csv(here::here("data", "cascade", "d_cascade_2019.csv")) 
+
+cas %>% select(State, PrevTxPub, CNR_pub, TxI_pub) %>% 
+  mutate(Dur = PrevTxPub / (CNR_pub * TxI_pub )) %>% data.frame()
+
 targets <- read_csv(here::here("data", "cascade", "d_cascade_2019.csv")) %>% 
   select(Region, State, PrevUt, PrevTx, CNR_pub, CNR_eng) %>% 
   mutate(PrevUt = PrevUt, PrevTx = PrevTx) %>% 

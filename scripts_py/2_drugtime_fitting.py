@@ -7,7 +7,7 @@ dat = pd.read_csv('../data/cascade/d_cascade_2019.csv')
 dat = {row['State']: row for _, row in dat.iterrows()}
 
 
-alg = ApproxBayesComSMC(max_round=35, n_collect=500, n_core=4, verbose=0)
+alg = ApproxBayesComSMC(max_round=10, n_collect=2000, n_core=4, verbose=8)
 
 
 if __name__ == '__main__':

@@ -120,7 +120,8 @@ class CascadeTx:
             'PrOnPriDrug': self.PrOnPriDrug,
             'CnrPub': self.CNR[0],
             'CnrEng': self.CNR[1],
-            'PpvPri': self.PPV[2]
+            'PpvPri': self.PPV[2],
+            'TxiPri': self.P_TxI[2]
         }
 
     def json(self):
@@ -191,7 +192,7 @@ class ObjForward(AbsObjectiveSimBased):
 
         scale = (self.Data.DrugTime_U - self.Data.DrugTime_L) / 4
 
-        li += sts.norm.logpdf(sim.DrugTime[1:].sum(), loc=self.Data.PrevTxPri, scale=scale)
+        li += sts.norm.logpdf(sim.DrugTime[1:].sum(), loc=self.Data.PrevTxPri, scale=self.Data.PrevTxPri / 10)
 
         if self.UsingDrugSale:
             li += sts.norm.logpdf(sim.OnPriDrug, loc=self.Data.DrugTime_M,

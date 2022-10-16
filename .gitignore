@@ -24,3 +24,6 @@
 out/
 results/legacy
 .idea/
+notebooks/.ipynb_checkpoints/
+
+ppa/__pycache__/

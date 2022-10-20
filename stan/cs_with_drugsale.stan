@@ -68,7 +68,6 @@ transformed parameters {
   real<lower=0, upper=1> prv_a;
   real<lower=0, upper=1> prv_s;
   real<lower=0, upper=1> prv_c;
-  real<lower=0, upper=1> prv_t_pub;
   real<lower=0, upper=1> prv_t_eu;
   real<lower=0, upper=1> prv_t_ei;
   real<lower=0, upper=1> prv_t_pri;
@@ -135,7 +134,7 @@ model {
   target += binomial_lpmf(CS | N, prv_c);
   
   target += binomial_lpmf(TxPri | N, prv_t_eu + prv_t_ei + prv_t_pri);
-  target += normal_lpdf(DrugPri | (prv_t_ei + prv_t_pri) * 12, DrugPri_Std);
+  target += normal_lpdf(DrugPri | (prv_t_ei + prv_t_pri), DrugPri_Std);
   
   for (i in 1:n_t) {
     target += poisson_lpmf(NotiACF[i] | nr_acf[i] * Pop[i]);

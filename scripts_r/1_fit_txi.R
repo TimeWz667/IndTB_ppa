@@ -2,10 +2,10 @@ library(tidyverse)
 library(rstan)
 
 
+dir.create("out/sub_txi", showWarnings = F)
+
 
 load(here::here("data", "dat_txi.rdata"))
-
-
 
 
 sel_india <- dat_txi %>% filter(State == "India")

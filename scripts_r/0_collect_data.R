@@ -10,7 +10,7 @@ state_map3 <- read_csv(here::here("data", "StateMap3.csv"))
 
 
 tbps <- read_csv(here::here("data", "TBPS", "TBPS_ASC_State.csv"))
-drug <- read_csv(here::here("data", "DrugSale.csv"))
+drug <- read_csv(here::here("data", "d_drug.csv"))
 
 load(here::here("data", "d_itr.rdata"))
 
@@ -56,7 +56,7 @@ save(dat_tx, file = here::here("data", "dat_tx.rdata"))
 dat_noti <- state_map %>% 
   left_join(d_itr_notif %>% rename(State_Itr = State)) %>%
   left_join(d_itr_acf %>% rename(State_Itr = State)) %>% 
-  left_join(d_pop) %>% 
+  left_join(d_pop) %>%
   mutate(
     N_Det_ACF = N_ACF_Detected,
     N_Det_Pub = N_Noti_Pub - N_Det_ACF
@@ -85,30 +85,27 @@ state_map %>%
 dat_tbps <- state_map %>% 
   left_join(tbps %>% 
               select(State, N, N_Asym, N_NotCS, N_NotDet, N_OnATT_Pub, N_OnATT_Pri)) %>% 
-  left_join(drug %>% 
-              extract(Tx_month_pri, c("TxMo_M", "TxMo_L", "TxMo_U"), "(\\S+) \\((\\S+), (\\S+)\\)", convert = T) %>% 
-              select(State, starts_with("TxMo"))) %>% 
+  left_join(drug) %>% 
   mutate(Year = 2020) %>% 
-  select(State, Region, N, starts_with("N_"), starts_with("TxMo_"))
+  select(State, Region, N, starts_with("N_"), starts_with("DrugTime_"))
 
 
 save(dat_noti, dat_tbps, file = here::here("data", "dat_cas.rdata"))
 
 
 
-state_map %>% 
-  left_join(d_itr_acf %>% rename(State_Itr = State)) %>% 
-  left_join(d_pop) %>% 
-  select(State, Region, P1, Year, Pop, starts_with("N_ACF")) %>% 
+
+dat_tbps %>% 
   mutate(
-    N_TB = P1 / 1e5 * Pop,
-    N_TP = N_TB * 0.7,
-    N_FP = (Pop - N_TB) * (1 - 0.99),
-    PPV = N_TP / (N_TP + N_FP)
+    Pt = N_OnATT_Pri / N
   ) %>% 
-  ggplot() +
-  geom_line(aes(x = Year, y = PPV)) +
-  facet_wrap(.~State)
+  ggplot() + 
+  geom_point(aes(x = Pt, y = DrugTime_M)) +
+  geom_linerange(aes(x = Pt, ymin = DrugTime_L, ymax = DrugTime_U)) +
+  geom_abline(intercept = 0, slope  = 1)
+
+
+
 
 
 (x * 0.7 + (1 - x) * 0.01) *  0.5 = 0.7 * x

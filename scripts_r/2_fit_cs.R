@@ -88,7 +88,7 @@ for (loc in locations[c(1)]) {
     bind_cols(bind_rows(exo)) %>% 
     select(-starts_with("nr_"), - prv, - lp__)
   
-  write.csv(res_nods, file=here::here("docs", "tabs", "post_cs_nods_" + glue::as_glue(loc) + ".csv"), row.names=F)
+  write.csv(res_nods, file=here::here("out", "sub_cs", "post_cs_nods_" + glue::as_glue(loc) + ".csv"), row.names=F)
   
   
   
@@ -128,7 +128,7 @@ for (loc in locations[c(1)]) {
     bind_cols(bind_rows(exo)) %>% 
     select(-starts_with("nr_"), - prv, - lp__)
   
-  write.csv(res_onds, file=here::here("docs", "tabs", "post_cs_onds_" + glue::as_glue(loc) + ".csv"), row.names=F)
+  write.csv(res_onds, file=here::here("out", "sub_cs", "post_cs_onds_" + glue::as_glue(loc) + ".csv"), row.names=F)
   
   print(rhat[loc, ])
 }

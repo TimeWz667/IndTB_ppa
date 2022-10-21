@@ -10,8 +10,6 @@
 
 # Example code in package build process
 *-Ex.R
-
-# Output files from R CMD build
 /*.tar.gz
 
 # Output files from R CMD check
@@ -23,4 +21,9 @@
 
 out/
 results/legacy
+scripts/legacy
 .idea/
+notebooks/.ipynb_checkpoints/
+
+ppa/__pycache__/
+scripts/

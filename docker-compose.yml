@@ -3,9 +3,9 @@ services:
   ppa:
       image:            pymc/pymc
       volumes:
-        - D:\Projects\IndiaTB\IndTB_ppa\notebooks:/home/jovyan/work
-        - D:\Projects\IndiaTB\IndTB_ppa\data:/home/jovyan/work/data
-        - D:\Projects\IndiaTB\IndTB_ppa\out:/home/jovyan/work/out
+        - .\notebooks:/home/jovyan/work
+        - .\data:/home/jovyan/work/data
+        - .\out:/home/jovyan/work/out
       ports:
         - 8888:8888
       container_name:   ppa

@@ -26,6 +26,7 @@ data {
   real<lower=0, upper=1> ppv_pub;
   real<lower=0, upper=1> ppv_eng;
   
+  
   real<lower=0, upper=1> sens_acf;
   real<lower=0, upper=1> spec_acf;
   
@@ -112,7 +113,7 @@ transformed parameters {
     
   }
   
-  //prv_t_pub = (prv0 * pr_c * r_det * det_pub * txi_pub / ppv_pub + (prv0 * sens_acf + (1 - prv0) * (1 - spec_acf)) * r_acf) / (1 / dur_pub - adr);
+  
   prv_t_eu = prv0 * pr_c * r_det * det_eng * txi_eng / ppv_eng * p_pri_on_pub * (1 / dur_pub - adr);
   prv_t_ei = prv0 * pr_c * r_det * det_eng * txi_eng / ppv_eng * (1 - p_pri_on_pub) * (1 / dur_pri - adr);
   prv_t_pri = prv0 * pr_c * r_det * det_pri * txi_pri / ppv_eng * (1 / dur_pri - adr);
@@ -140,4 +141,8 @@ model {
     target += poisson_lpmf(NotiPub[i] | nr_pub[i] * Pop[i]);
     target += poisson_lpmf(NotiEng[i] | nr_eng[i] * Pop[i]);
   }
+}
+generated quantities {
+  real prv_t_pub;
+  prv_t_pub = (prv0 * pr_c * r_det * det_pub * txi_pub / ppv_pub + (prv0 * sens_acf + (1 - prv0) * (1 - spec_acf)) * r_acf) / (1 / dur_pub - adr);
 }

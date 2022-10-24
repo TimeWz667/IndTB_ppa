@@ -40,12 +40,12 @@ exo <- list(
 locations <- unique(dat_noti$State)
 
 
-rhat <- matrix(0, length(locations), 2)
+rhat <- matrix(2, length(locations), 2)
 rownames(rhat) <- locations
 colnames(rhat) <- c("NoDS", "WithDS")
 
 
-for (loc in locations[c(1)]) {
+for (loc in locations[which(apply(rhat > 1.05, 1, any))]) {
   print(loc)
   sel_noti <- dat_noti %>% filter(State == loc) %>% filter(!is.na(N_Det_Pub))
   sel_tbps <- dat_tbps %>% filter(State == loc)
@@ -83,15 +83,7 @@ for (loc in locations[c(1)]) {
   hist(rstan::extract(po_cs_nods,  "txi_pri")[[1]])
   
   save(po_cs_nods, file = here::here("out", "sub_cs", "post_cs_nods_" + glue::as_glue(loc) + ".rdata"))
-  
-  res_nods <- as_tibble(rstan::extract(po_cs_nods)) %>% 
-    bind_cols(bind_rows(exo)) %>% 
-    select(-starts_with("nr_"), - prv, - lp__)
-  
-  write.csv(res_nods, file=here::here("out", "sub_cs", "post_cs_nods_" + glue::as_glue(loc) + ".csv"), row.names=F)
-  
-  
-  
+
   
   # No drug sale data
   dat <- list(
@@ -120,9 +112,33 @@ for (loc in locations[c(1)]) {
   
   rhat[loc, 2] <- max(summary(po_cs_onds)$summary[, "Rhat"])
   
-  hist(rstan::extract(po_cs_onds,  "txi_pri")[[1]])
-  
   save(po_cs_onds, file = here::here("out", "sub_cs", "post_cs_onds_" + glue::as_glue(loc) + ".rdata"))
+  
+  print(rhat[loc, ])
+}
+
+
+write_csv(as_tibble(rhat), file = here::here("docs", "tabs", "rhat_cs.csv"))
+
+
+
+## Convert to json
+
+for (loc in locations) {
+  load(file = here::here("out", "sub_cs", "post_cs_nods_" + glue::as_glue(loc) + ".rdata"))
+  
+  res_nods <- as_tibble(rstan::extract(po_cs_nods)) %>% 
+    bind_cols(bind_rows(exo)) %>% 
+    select(-starts_with("nr_"), - prv, - lp__)
+  
+  write.csv(res_nods, file=here::here("out", "sub_cs", "post_cs_nods_" + glue::as_glue(loc) + ".csv"), row.names=F)
+
+  jsonlite::write_json(apply(as.matrix(res_nods), 1, as.list), 
+                       here::here("out", "sub_cs", "pars_nods_" + glue::as_glue(loc) + ".json"), 
+                       simplifyVector=T, auto_unbox=T)
+  
+  
+  load(file = here::here("out", "sub_cs", "post_cs_onds_" + glue::as_glue(loc) + ".rdata"))
   
   res_onds <- as_tibble(rstan::extract(po_cs_onds)) %>% 
     bind_cols(bind_rows(exo)) %>% 
@@ -130,9 +146,47 @@ for (loc in locations[c(1)]) {
   
   write.csv(res_onds, file=here::here("out", "sub_cs", "post_cs_onds_" + glue::as_glue(loc) + ".csv"), row.names=F)
   
-  print(rhat[loc, ])
+  jsonlite::write_json(apply(as.matrix(res_nods), 1, as.list), 
+                       here::here("out", "sub_cs", "pars_onds_" + glue::as_glue(loc) + ".json"), 
+                       simplifyVector=T, auto_unbox=T)
 }
 
 
-write_csv(as_tibble(rhat), file = here::here("docs", "tabs", "rhat_cs.csv"))
+
+## Summarise results
+tab <- bind_rows(lapply(locations, function(loc) {
+  read_csv(file=here::here("out", "sub_cs", "post_cs_nods_" + glue::as_glue(loc) + ".csv")) %>% 
+    summarise(across(everything(), list(
+      m = mean,
+      l = function(x) quantile(x, 0.025),
+      u = function(x) quantile(x, 0.975)
+    ))) %>% 
+    mutate(State = loc) %>%
+    relocate(State)
+  
+}))
+
+
+write_csv(tab, here::here("docs", "tabs", "post_cs_nods.csv"))
+
+
+
+tab <- bind_rows(lapply(locations, function(loc) {
+  read_csv(file=here::here("out", "sub_cs", "post_cs_onds_" + glue::as_glue(loc) + ".csv")) %>% 
+    summarise(across(everything(), list(
+      m = mean,
+      l = function(x) quantile(x, 0.025),
+      u = function(x) quantile(x, 0.975)
+    ))) %>% 
+    mutate(State = loc) %>%
+    relocate(State)
+  
+}))
+
+
+write_csv(tab, here::here("docs", "tabs", "post_cs_onds.csv"))
+
+
+
+
 

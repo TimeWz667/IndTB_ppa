@@ -120,7 +120,7 @@ transformed parameters {
 }
 model {
   prv0 ~ uniform(0, 1);
-  r_det ~ inv_gamma(scale_dur, scale_dur);
+  r_det_all ~ inv_gamma(scale_dur, scale_dur);
 
   r_sym ~ inv_gamma(scale_dur, scale_dur);
   r_aware ~ inv_gamma(scale_dur, scale_dur);
@@ -141,4 +141,8 @@ model {
     target += poisson_lpmf(NotiPub[i] | nr_pub[i] * Pop[i]);
     target += poisson_lpmf(NotiEng[i] | nr_eng[i] * Pop[i]);
   }
+}
+generated quantities {
+  real prv_t_pub;
+  prv_t_pub = (prv0 * pr_c * r_det * det_pub * txi_pub / ppv_pub + (prv0 * sens_acf + (1 - prv0) * (1 - spec_acf)) * r_acf) / (1 / dur_pub - adr);
 }

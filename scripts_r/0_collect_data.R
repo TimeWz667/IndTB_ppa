@@ -84,41 +84,11 @@ state_map %>%
 
 dat_tbps <- state_map %>% 
   left_join(tbps %>% 
-              select(State, N, N_Asym, N_NotCS, N_NotDet, N_OnATT_Pub, N_OnATT_Pri)) %>% 
+              select(State, N, N_Asym, N_NotCS, N_NotDet, N_OnATT_Pub, N_OnATT_Pri, N_TBLike)) %>% 
   left_join(drug) %>% 
   mutate(Year = 2020) %>% 
   select(State, Region, N, starts_with("N_"), starts_with("DrugTime_"))
 
 
 save(dat_noti, dat_tbps, file = here::here("data", "dat_cas.rdata"))
-
-
-
-
-dat_tbps %>% 
-  mutate(
-    Pt = N_OnATT_Pri / N
-  ) %>% 
-  ggplot() + 
-  geom_point(aes(x = Pt, y = DrugTime_M)) +
-  geom_linerange(aes(x = Pt, ymin = DrugTime_L, ymax = DrugTime_U)) +
-  geom_abline(intercept = 0, slope  = 1)
-
-
-
-
-
-(x * 0.7 + (1 - x) * 0.01) *  0.5 = 0.7 * x
-0.69 * 0.5 * x + 0.01 * 0.5 = 0.7 * x
-
-0.01 * 0.5 / (1 - 0.99 * 0.5)
-
-
-
-
-  
-
-
-
-
 

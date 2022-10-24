@@ -134,5 +134,5 @@ for (loc in locations[c(1)]) {
 }
 
 
-write_csv(as_tibble(rhat), file = here::here("docs", "tabs", "rhat_cs.rdata"))
+write_csv(as_tibble(rhat), file = here::here("docs", "tabs", "rhat_cs.csv"))
 

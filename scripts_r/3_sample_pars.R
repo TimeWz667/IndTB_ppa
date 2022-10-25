@@ -2,23 +2,54 @@ library(tidyverse)
 
 
 
+load(here::here("data", "dat_cas.rdata"))
 
-loc <- "Delhi"
+locations <- unique(dat_noti$State)
+loc_maps <- setNames(gsub(" ", "_", locations), locations)
+loc_maps["Chhatisgarh"] <- "Chhattisgarh"
 
-
-
-n_samples <- 1500
-
-
-post_cs <- read_csv(here::here("out", "sub_cs", "post_cs_onds_" + glue::as_glue(loc) + ".csv"))
+loc_maps
 
 
-jsonlite::toJSON(post_cs)
 
-post_txi <- jsonlite::read_json(here::here("out", "sub_txi", "pars_" + glue::as_glue(loc) + ".json"))
+## Setup
+set.seed(1166)
 
-post_tx <- jsonlite::read_json(here::here("out", "sub_tx", "pars_" + glue::as_glue(loc) + ".json"))
+n_samples <- 300
+
+dir.create(here::here("docs", "pars"), showWarnings = F)
+
+## Collect pars
+for (loc in names(loc_maps)) {
+  loc <- glue::as_glue(loc)
+  loc1 <- glue::as_glue(loc_maps[loc])
+  
+  txi <- jsonlite::read_json(here::here("out", "sub_txi", "pars_" + loc + ".json"))
+  txi <- txi[sample(1:length(txi), n_samples, rep =T)]
+  
+  txo <- jsonlite::read_json(here::here("out", "sub_tx", "pars_" + loc + ".json"))
+  txo <- txo[sample(1:length(txo), n_samples, rep =T)]
+  
+  cs <- jsonlite::read_json(here::here("out", "sub_cs", "pars_nods_" + loc + ".json"))
+  cs <- cs[sample(1:length(cs), n_samples, rep =T)]
+  
+  
+  pars <- lapply(1:n_samples, function(i) pars[[i]] <- c(cs[[i]], txo[[i]], txi[[i]]))
+  
+  jsonlite::write_json(pars, here::here("docs", "pars", "pars_nods_" + loc1 + ".json"), auto_unbox=T, digits = 10)
+  
+  
+  cs <- jsonlite::read_json(here::here("out", "sub_cs", "pars_onds_" + loc + ".json"))
+  cs <- cs[sample(1:length(cs), n_samples, rep =T)]
+  
+  
+  pars <- lapply(1:n_samples, function(i) pars[[i]] <- c(cs[[i]], txo[[i]], txi[[i]]))
+  
+  jsonlite::write_json(pars, here::here("docs", "pars", "pars_onds_" + loc1 + ".json"), auto_unbox=T, digits = 10)
+  
+}
 
 
-post_tx[[1]]
+
+
 

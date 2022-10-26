@@ -18,10 +18,13 @@ class PathwayPlain(AbsPathway):
         pp['p_dx0'] = np.zeros(3)
 
         pp['p_dx1'] = np.ones((3, 3))
-        pp['p_tr'] = np.diag(np.ones(3))
-        p_pub, p_ppm = pars['p_pub'], pars['p_ppm']
 
-        pp['prop_cs'] = pp['p_entry'] = np.array([p_pub, (1 - p_pub) * p_ppm, (1 - p_pub) * (1 - p_ppm)])
+        p_pub, p_ppm = pars['p_pub'], pars['p_ppm']
+        p_entry = np.array([p_pub, (1 - p_pub) * p_ppm, (1 - p_pub) * (1 - p_ppm)])
+
+        pp['p_tr'] = np.array([p_entry, p_entry, p_entry])
+        # pp['p_entry'] = np.array([1, 0, 0])
+        pp['p_entry'] = p_entry
 
         p_pri_on_pub = pars['p_pri_on_pub']
 

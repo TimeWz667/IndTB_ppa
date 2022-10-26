@@ -119,7 +119,7 @@ class SteadyStateModel(AbsModel):
         calc['acf_s'] = pars['r_acf'] * pars['sens_acf'] * y[I.Sym]
         calc['acf_c'] = pars['r_acf'] * pars['sens_acf'] * y[I.ExCs]
 
-        calc['acf_fp'] = pars['r_acf'] * pars['spec_acf'] * y[I.NonTB]
+        calc['acf_fp'] = pars['r_acf'] * (1 - pars['spec_acf']) * y[I.NonTB]
 
         calc['inc'] = onset + acf_a + sc_a + die_a - pars['adr'] * y[I.Asym]
 
@@ -164,7 +164,6 @@ class SteadyStateModel(AbsModel):
 
         dy[I.Fp] = (p_trtx * txi_fp.reshape((-1, 1))).sum(0) - calc['to_fp']
         dy[I.FpPub] += acf_fp
-
         dy[I.NonTB] += calc['to_tp'].sum() + calc['to_fp'].sum() - txi_fp.sum() - acf_fp
 
         return dy
@@ -187,6 +186,18 @@ class SteadyStateModel(AbsModel):
         mea['TxPri'] = y[I.TpPri] + y[I.FpPri]
         mea['IncR'] = calc['inc']
 
+        mea['CNR_Acf'] = calc['acf_a'] + calc['acf_s'] + calc['acf_c'].sum() + calc['acf_fp']
+
+        det_tp = calc['tp0'] + calc['tp1'].sum(0)
+        det_fp = calc['det_fp']
+
+        mea['CNR_Pub'] = det_tp[0] + det_fp[0]
+        mea['CNR_Eng'] = det_tp[1] + det_fp[1]
+
+        mea['PPV_Pub'] = det_tp[0] / mea['CNR_Pub']
+        mea['PPV_Eng'] = det_tp[1] / mea['CNR_Eng']
+        mea['PPV_Acf'] = calc['acf_a'] + calc['acf_s'] + calc['acf_c'].sum() / mea['CNR_Acf']
+
         return mea
 
 
@@ -207,5 +218,8 @@ if __name__ == '__main__':
     ys, ms = m.simulate(p0)
 
     print('ADR pars: ', p0['adr'])
-    print('ADR sims: ', - np.diff(np.log(ms.TpPub)) * 2)
-    print('ADR sims: ', - np.diff(np.log(ms.FpPub)) * 2)
+    print('ADR sims: ', - np.diff(np.log(ms.CNR_Acf)) * 2)
+    #
+    # ms[['CNR_Acf', 'CNR_Pub', 'CNR_Eng']].plot()
+    ms[['PPV_Acf', 'PPV_Pub', 'PPV_Eng']].plot()
+    plt.show()

@@ -24,8 +24,15 @@ for (loc in names(loc_maps)) {
   loc <- glue::as_glue(loc)
   loc1 <- glue::as_glue(loc_maps[loc])
   
-  txi <- jsonlite::read_json(here::here("out", "sub_txi", "pars_" + loc + ".json"))
-  txi <- txi[sample(1:length(txi), n_samples, rep =T)]
+  
+  if (loc == "Arunachal Pradesh") {
+    txi <- jsonlite::read_json(here::here("out", "sub_txi", "pars_India.json"))
+    txi <- txi[sample(1:length(txi), n_samples, rep =T)]
+  } else {
+    txi <- jsonlite::read_json(here::here("out", "sub_txi", "pars_" + loc + ".json"))
+    txi <- txi[sample(1:length(txi), n_samples, rep =T)]
+  }
+
   
   txo <- jsonlite::read_json(here::here("out", "sub_tx", "pars_" + loc + ".json"))
   txo <- txo[sample(1:length(txo), n_samples, rep =T)]
@@ -34,7 +41,7 @@ for (loc in names(loc_maps)) {
   cs <- cs[sample(1:length(cs), n_samples, rep =T)]
   
   
-  pars <- lapply(1:n_samples, function(i) pars[[i]] <- c(cs[[i]], txo[[i]], txi[[i]]))
+  pars <- lapply(1:n_samples, function(i) c(cs[[i]], txo[[i]], txi[[i]]))
   
   jsonlite::write_json(pars, here::here("docs", "pars", "pars_nods_" + loc1 + ".json"), auto_unbox=T, digits = 10)
   
@@ -43,7 +50,7 @@ for (loc in names(loc_maps)) {
   cs <- cs[sample(1:length(cs), n_samples, rep =T)]
   
   
-  pars <- lapply(1:n_samples, function(i) pars[[i]] <- c(cs[[i]], txo[[i]], txi[[i]]))
+  pars <- lapply(1:n_samples, function(i) c(cs[[i]], txo[[i]], txi[[i]]))
   
   jsonlite::write_json(pars, here::here("docs", "pars", "pars_onds_" + loc1 + ".json"), auto_unbox=T, digits = 10)
   

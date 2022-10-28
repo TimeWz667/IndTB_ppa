@@ -47,8 +47,8 @@ parameters {
   real<lower=0.1, upper = 0.3> r_sc;
   
   real<lower=0, upper=1> txi_pri;
-  real<lower=0, upper=ppv_eng> ppv_pri;
-  real<lower=0, upper=1.5> dur_pri;
+  real<lower=0.1, upper=ppv_eng> ppv_pri;
+  real<lower=0.04166667, upper=1.5> dur_pri;
   real<lower=0, upper=1> p_pri_on_pub;
 
 }
@@ -116,7 +116,7 @@ transformed parameters {
   
   prv_t_eu = prv0 * pr_c * r_det * det_eng * txi_eng / ppv_eng * p_pri_on_pub * (1 / dur_pub - adr);
   prv_t_ei = prv0 * pr_c * r_det * det_eng * txi_eng / ppv_eng * (1 - p_pri_on_pub) * (1 / dur_pri - adr);
-  prv_t_pri = prv0 * pr_c * r_det * det_pri * txi_pri / ppv_eng * (1 / dur_pri - adr);
+  prv_t_pri = prv0 * pr_c * r_det * det_pri * txi_pri / ppv_pri * (1 / dur_pri - adr);
 
 }
 model {
@@ -127,7 +127,7 @@ model {
   r_aware ~ inv_gamma(scale_dur, scale_dur);
   r_sc ~ uniform(0.1, 0.3);
   
-  adr ~ uniform(-0.2, 0.2);
+  adr ~ uniform(-0.1, 0.1);
 
 
   target += binomial_lpmf(Asym | N, prv_a);

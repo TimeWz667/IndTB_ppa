@@ -38,7 +38,8 @@ class PathwayPlain(AbsPathway):
         pp['r_recsi'] = pars['r_det']
 
         pp['p_txi'] = np.array([pars['p_txi_pub'], pars['p_txi_eng'], pars['txi_pri']])
-        pp['ppv'] = np.array([pars['ppv_pub'], pars['ppv_eng'], pars['ppv_pri']])
+        pp['ppv'] = ppv = np.array([pars['ppv_pub'], pars['ppv_eng'], pars['ppv_pri']])
+        ppv[ppv <= 0] = 0.01
         pp['dur'] = np.array([pars['dur_pub'], pars['dur_pub'], pars['dur_pri']])
         pp['p_ts'] = np.array([pars['p_txs_pub'], pars['p_txs_eng'], pars['p_txs_eng']])
         pp['p_tl'] = np.array([pars['p_txl_pub'], pars['p_txl_eng'], pars['p_txl_eng']])

@@ -61,6 +61,7 @@ class SteadyStateModel(AbsModel):
         y0[I.ExCs] = p_det * asc[2] * prev
 
         ppv = np.array([pars['ppv_pub'], pars['ppv_eng'], pars['ppv_pri']])
+        ppv[ppv <= 0.01] = 0.01
         dur = np.array([pars['dur_pub'], pars['dur_pub'], pars['dur_pri']])
 
         det = pars['r_det'] * p_det * p_txi * y0[I.ExCs].sum()
@@ -184,6 +185,7 @@ class SteadyStateModel(AbsModel):
         mea['TxPub'] = y[I.TpPub] + y[I.FpPub]
         mea['TxEng'] = y[I.TpEng] + y[I.FpEng]
         mea['TxPri'] = y[I.TpPri] + y[I.FpPri]
+        mea['CarePri'] = mea['TxEng'] + mea['TxPri']
         mea['IncR'] = calc['inc']
 
         mea['CNR_Acf'] = calc['acf_a'] + calc['acf_s'] + calc['acf_c'].sum() + calc['acf_fp']
@@ -196,7 +198,7 @@ class SteadyStateModel(AbsModel):
 
         mea['PPV_Pub'] = det_tp[0] / mea['CNR_Pub']
         mea['PPV_Eng'] = det_tp[1] / mea['CNR_Eng']
-        mea['PPV_Acf'] = calc['acf_a'] + calc['acf_s'] + calc['acf_c'].sum() / mea['CNR_Acf']
+        mea['PPV_Acf'] = (calc['acf_a'] + calc['acf_s'] + calc['acf_c'].sum()) / mea['CNR_Acf']
 
         return mea
 
@@ -204,7 +206,7 @@ class SteadyStateModel(AbsModel):
 if __name__ == '__main__':
     import json
     from ppa.dy.pathway import PathwayPlain
-    import matplotlib.pylab as plt
+    import matplotlib.pyplot as plt
 
     loc = 'India'
 

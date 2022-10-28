@@ -17,8 +17,6 @@ load(here::here("data", "d_itr.rdata"))
 
 
 # Collect data mapping
-
-
 state_map <- state_map1 %>% 
   left_join(state_map2) %>% 
   left_join(state_map3) %>% 
@@ -26,21 +24,18 @@ state_map <- state_map1 %>%
 
 
 # Population data
-
 d_pop <- pop %>% 
   filter(Sex == "Total") %>% 
   select(Year, State_Pop = Location, Pop)
 
 
 # For treatment initiation analysis
-
 dat_txi <- state_map %>% 
   left_join(d_itr_notif %>% rename(State_Itr = State)) %>%
   select(State, Region, Year, N_Det_Pub = N_Noti_Pub, N_Det_Eng = N_Noti_Pri, N_Txi_Pub, N_Txi_Eng = N_Txi_Pri) %>% 
   filter(N_Txi_Pub > 0)
 
 save(dat_txi, file = here::here("data", "dat_txi.rdata"))
-
 
 
 # For treatment outcome analysis

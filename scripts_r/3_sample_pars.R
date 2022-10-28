@@ -56,7 +56,3 @@ for (loc in names(loc_maps)) {
   
 }
 
-
-
-
-

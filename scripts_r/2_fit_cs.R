@@ -126,16 +126,16 @@ write_csv(as_tibble(rhat), file = here::here("docs", "tabs", "rhat_cs.csv"))
 
 for (loc in locations) {
   load(file = here::here("out", "sub_cs", "post_cs_nods_" + glue::as_glue(loc) + ".rdata"))
-  
-  res_nods <- as_tibble(rstan::extract(po_cs_nods)) %>% 
-    bind_cols(bind_rows(exo)) %>% 
+
+  res_nods <- as_tibble(rstan::extract(po_cs_nods)) %>%
+    bind_cols(bind_rows(exo)) %>%
     select(-starts_with("nr_"), - prv, - lp__)
-  
+
   write.csv(res_nods, file=here::here("out", "sub_cs", "post_cs_nods_" + glue::as_glue(loc) + ".csv"), row.names=F)
 
-  jsonlite::write_json(apply(as.matrix(res_nods), 1, as.list), 
-                       here::here("out", "sub_cs", "pars_nods_" + glue::as_glue(loc) + ".json"), 
-                       simplifyVector=T, auto_unbox=T)
+  jsonlite::write_json(apply(as.matrix(res_nods), 1, as.list),
+                       here::here("out", "sub_cs", "pars_nods_" + glue::as_glue(loc) + ".json"),
+                       simplifyVector=T, auto_unbox=T, digits=10)
   
   
   load(file = here::here("out", "sub_cs", "post_cs_onds_" + glue::as_glue(loc) + ".rdata"))
@@ -146,10 +146,11 @@ for (loc in locations) {
   
   write.csv(res_onds, file=here::here("out", "sub_cs", "post_cs_onds_" + glue::as_glue(loc) + ".csv"), row.names=F)
   
-  jsonlite::write_json(apply(as.matrix(res_nods), 1, as.list), 
+  jsonlite::write_json(apply(as.matrix(res_onds), 1, as.list), 
                        here::here("out", "sub_cs", "pars_onds_" + glue::as_glue(loc) + ".json"), 
-                       simplifyVector=T, auto_unbox=T)
+                       simplifyVector=T, auto_unbox=T, digits=10)
 }
+
 
 
 

@@ -27,3 +27,4 @@ notebooks/.ipynb_checkpoints/
 
 ppa/__pycache__/
 scripts/
+/app/node_modules/

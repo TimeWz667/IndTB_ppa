@@ -30,11 +30,12 @@ class AbsModel(metaclass=ABCMeta):
     def measure(self, t, y, pars):
         pass
 
-    def simulate(self, pars):
-        if 'pp' not in pars:
+    def simulate(self, pars, y0=None):
+        if 'pp' not in pars and self.PatientPathway is not None:
             pars['pp'] = self.PatientPathway(pars)
 
-        y0 = self.get_y0(self.Year0, pars)
+        if y0 is None:
+            y0 = self.get_y0(self.Year0, pars)
         ys = solve_ivp(self, self.YearRange, y0=y0, args=(pars, ), dense_output=True)
         ms = pd.DataFrame([self.measure(t, ys.sol(t), pars) for t in self.YearSeries]).set_index('Time')
         return ys, ms
@@ -68,7 +69,7 @@ if __name__ == '__main__':
                 'Inc': foi * s / n
             }
 
-    sir = SIR(0, 30)
+    sir = SIR(0, 30, dt=0.5, pp=None)
     _, ms = sir.simulate({'beta': 1.5, 'gamma': 0.2})
     ms.plot()
     plt.show()

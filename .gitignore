@@ -30,3 +30,4 @@ ppa/dy/__pycache__/
 scripts/
 
 stan/*.rds
+/app/node_modules/

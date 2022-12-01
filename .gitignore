@@ -26,4 +26,7 @@ scripts/legacy
 notebooks/.ipynb_checkpoints/
 
 ppa/__pycache__/
+ppa/dy/__pycache__/
 scripts/
+
+stan/*.rds

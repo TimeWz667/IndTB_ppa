@@ -25,9 +25,12 @@ scripts/legacy
 .idea/
 notebooks/.ipynb_checkpoints/
 
+__pycache__/
 ppa/__pycache__/
-ppa/dy/__pycache__/
+ppa/*/__pycache__/
 scripts/
 
 stan/*.rds
 /app/node_modules/
+stan/*.rds
+

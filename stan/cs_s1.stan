@@ -48,15 +48,11 @@ parameters {
   real<lower=0> r_det_all;
   real<lower=0.1, upper = 0.3> r_sc;
   
-<<<<<<< HEAD:stan/cs_no_drugsale.stan
-  real<lower=0, upper=1> txi_pri;
-  real<lower=0, upper=ppv_eng> ppv_pri;
-  real<lower=0, upper=1.5> dur_pri;
-=======
+
   real<lower=0.5, upper=1> txi_pri;
   real<lower=0.1, upper=ppv_eng> ppv_pri;
   real<lower=0.04166667, upper=1.5> dur_pri;
->>>>>>> 796c2bd92af6ee9547478c96b16e02c8def6b5e1:stan/cs_s1.stan
+
   real<lower=0, upper=1> p_pri_on_pub;
 }
 transformed parameters {
@@ -130,16 +126,13 @@ transformed parameters {
   prv_t_pub /= (1 / dur_pub - adr);
   prv_t_eu = prv0 * pr_c * r_det * det_eng * txi_eng / ppv_eng * p_pri_on_pub * (1 / dur_pub - adr);
   prv_t_ei = prv0 * pr_c * r_det * det_eng * txi_eng / ppv_eng * (1 - p_pri_on_pub) * (1 / dur_pri - adr);
-<<<<<<< HEAD:stan/cs_no_drugsale.stan
-  prv_t_pri = prv0 * pr_c * r_det * det_pri * txi_pri / ppv_eng * (1 / dur_pri - adr);
 
-=======
   prv_t_pri = prv0 * pr_c * r_det * det_pri * txi_pri / ppv_pri * (1 / dur_pri - adr);
   
   tbps_pub = prv_t_pub;
   tbps_pri = (prv_t_eu + prv_t_ei + prv_t_pri);
   drug_pri = (prv_t_ei + prv_t_pri);
->>>>>>> 796c2bd92af6ee9547478c96b16e02c8def6b5e1:stan/cs_s1.stan
+
 }
 model {
   prv0 ~ uniform(0, 1);

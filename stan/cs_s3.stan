@@ -48,17 +48,10 @@ parameters {
   real<lower=0> r_det_all;
   real<lower=0.1, upper = 0.3> r_sc;
   
-<<<<<<< HEAD:stan/cs_with_drugsale.stan
-  real<lower=0, upper=1> txi_pri;
-  real<lower=0, upper=1> ppv_pri;
-  real<lower=0, upper=1.5> dur_pri;
-
-=======
   real<lower=0.5, upper=1> txi_pri;
   real<lower=0.1, upper=ppv_eng> ppv_pri;
   real<lower=0.04166667, upper=1.5> dur_pri;
   real<lower=0, upper=1> p_pri_on_pub;
->>>>>>> 796c2bd92af6ee9547478c96b16e02c8def6b5e1:stan/cs_s3.stan
 }
 transformed parameters {
   real<lower=0> ra;
@@ -76,11 +69,8 @@ transformed parameters {
   real<lower=0, upper=1> prv_a;
   real<lower=0, upper=1> prv_s;
   real<lower=0, upper=1> prv_c;
-<<<<<<< HEAD:stan/cs_with_drugsale.stan
-=======
   
   real<lower=0, upper=1> prv_t_pub;
->>>>>>> 796c2bd92af6ee9547478c96b16e02c8def6b5e1:stan/cs_s3.stan
   real<lower=0, upper=1> prv_t_eu;
   real<lower=0, upper=1> prv_t_ei;
   real<lower=0, upper=1> prv_t_pri;
@@ -129,13 +119,6 @@ transformed parameters {
     
   }
   
-<<<<<<< HEAD:stan/cs_with_drugsale.stan
-  //prv_t_pub = (prv0 * pr_c * r_det * det_pub * txi_pub / ppv_pub + (prv0 * sens_acf + (1 - prv0) * (1 - spec_acf)) * r_acf) / (1 / dur_pub - adr);
-  prv_t_eu = prv0 * pr_c * r_det * det_eng * txi_eng / ppv_eng * (1 / dur_pub - adr);
-  prv_t_ei = prv0 * pr_c * r_det * det_eng * txi_eng / ppv_eng * (1 / dur_pri - adr);
-  prv_t_pri = prv0 * pr_c * r_det * det_pri * txi_pri / ppv_eng * (1 / dur_pri - adr);
-
-=======
   prv_t_pub = prv0 * pr_c * r_det * det_pub * txi_pub / ppv_pub;
   prv_t_pub += (prv0 * sens_acf + (1 - prv0) * (1 - spec_acf)) * r_acf;
   prv_t_pub /= (1 / dur_pub - adr);
@@ -146,7 +129,6 @@ transformed parameters {
   tbps_pub = prv_t_pub;
   tbps_pri = (prv_t_eu + prv_t_ei + prv_t_pri);
   drug_pri = (prv_t_ei + prv_t_pri);
->>>>>>> 796c2bd92af6ee9547478c96b16e02c8def6b5e1:stan/cs_s3.stan
 }
 model {
   prv0 ~ uniform(0, 1);
@@ -154,13 +136,10 @@ model {
 
   r_sym ~ inv_gamma(scale_dur, scale_dur);
   r_aware ~ inv_gamma(scale_dur, scale_dur);
-<<<<<<< HEAD:stan/cs_with_drugsale.stan
-  r_sc ~ uniform(0.1, 0.2);
-=======
+
   r_sc ~ uniform(0.1, 0.3);
 
   p_pri_on_pub ~ beta(1.5, 3.5);
->>>>>>> 796c2bd92af6ee9547478c96b16e02c8def6b5e1:stan/cs_s3.stan
   
   adr ~ uniform(0, 0.2);
 

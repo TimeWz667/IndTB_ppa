@@ -11,12 +11,36 @@ N <- PrevA + PrevS + PrevC + PrevTx
 output(N) <- TRUE
 
 
+dur_a <- 1 / (r_onset + r_sc + r_death_a + r_acf * sens_acf)
 dur_s <- 1 / (r_csi + r_sc + r_death_s + r_acf * sens_acf)
-dur_c <- 1 / (sum(det1) / PrevC + r_sc + r_death_s + r_acf * sens_acf)
+dur_c <- 1 / (r_det1 + r_sc + r_death_s + r_acf * sens_acf)
+
+
+p_det_a <- (r_acf * sens_acf) * dur_a
+p_prog_a <- r_onset * dur_a
+p_drop_a <- 1 - p_det_a - p_prog_a
+
+p_det_s <- (sum(det0) + r_acf * sens_acf) * dur_s
+p_prog_s <- fn0 / PrevS  * dur_s
+p_drop_s <- 1 - p_det_s - p_prog_s
+
+r_det1 <- sum(det1) / PrevC
+
+p_det_c <- (r_det1 + r_acf * sens_acf) * dur_c
+p_drop_c <- 1 - p_det_c
+
+
+output(dur_a) <- TRUE
+output(dur_s) <- TRUE
+output(dur_c) <- TRUE
+
+output(p_drop_a) <- TRUE
+output(p_drop_s) <- TRUE
+output(p_drop_c) <- TRUE
 
 
 del_pat <- dur_s 
-del_sys <- dur_c * (fn0 / (fn0 + sum(det0)))
+del_sys <- dur_c * p_prog_s * p_det_c / (p_prog_s * p_det_c + p_det_a)
 output(del_pat) <- TRUE
 output(del_sys) <- TRUE
 output(del_tot) <- del_pat + del_sys

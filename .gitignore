@@ -1,36 +1,27 @@
 # History files
 .Rhistory
 .Rapp.history
-
 # Session Data files
 .RData
-
 # User-specific files
 .Ruserdata
-
 # Example code in package build process
 *-Ex.R
 /*.tar.gz
-
 # Output files from R CMD check
 /*.Rcheck/
-
 # RStudio files
 .Rproj.user/
-
-
 out/
 results/legacy
 scripts/legacy
 .idea/
 notebooks/.ipynb_checkpoints/
-
 __pycache__/
 ppa/__pycache__/
 ppa/*/__pycache__/
-scripts/
 
-stan/*.rds
+/stan/*.rds
 /app/node_modules/
-stan/*.rds
-
+.config
+.local

@@ -11,3 +11,13 @@ services:
       ports:
         - 8888:8888
       container_name:   ppa
+
+  rstan:
+    image: kosugitti/rstan-env:latest
+    volumes:
+      - ./:/home/rstudio
+    ports:
+      - 8787:8787
+    environment:
+      - PASSWORD=Lunar
+    container_name: rstan

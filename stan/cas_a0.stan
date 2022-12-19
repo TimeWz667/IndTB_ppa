@@ -37,7 +37,7 @@ parameters {
   real<lower=0, upper=1> p_pub;
   real<lower=0, upper=1> p_ppm;
   
-  real<lower=0, upper=1> p_dx1_pub;
+  real<lower=0.8, upper=0.85> p_dx1_pub;
   real<lower=0, upper=1> rat_dx1_pri;
   
   real<lower=0> r_onset;

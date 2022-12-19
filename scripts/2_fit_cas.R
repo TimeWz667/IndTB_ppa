@@ -6,6 +6,7 @@ options(mc.cores = 4)
 rstan_options(auto_write = TRUE)
 
 
+m_cas_a0 <- rstan::stan_model(here::here("stan", "cas_a0.stan"))
 m_cas_a <- rstan::stan_model(here::here("stan", "cas_a.stan"))
 m_cas_b <- rstan::stan_model(here::here("stan", "cas_b.stan"))
 m_cas_c <- rstan::stan_model(here::here("stan", "cas_c.stan"))
@@ -38,6 +39,20 @@ locations <- unique(dat_noti$State)
 locations <- locations[locations %in% c("India", "Andhra_Pradesh")]
 
 
+fit <- function(m, dat, outfile, threshold=threshold) {
+  rhat <- 10
+  while(rhat > threshold) {
+    cat(loc); cat("\t"); cat(outfile); cat("\n")
+    post <- sampling(m_cas_a, data=dat, iter=n_iter, warmup=n_warmup)
+    rhat <- max(summary(post)$summary[, "Rhat"], na.rm=T)
+  }
+  save(post, dat, file = here::here("out", "sub_cas", outfile))
+  return(rhat)
+}
+
+
+loc <- "India"
+
 for (loc in locations) {
   sel_noti <- dat_noti %>% filter(State == loc) %>% 
     filter(!is.na(N_Det_Pub)) %>% 
@@ -63,32 +78,12 @@ for (loc in locations) {
   
   dat <- c(dat, exo)
   
-  
-  rhat <- 10
-  while(rhat > threshold) {
-    cat(loc); cat("\tA\n")
-    post <- sampling(m_cas_a, data=dat, iter=n_iter, warmup=n_warmup)
-    rhat <- max(summary(post)$summary[, "Rhat"], na.rm=T)
-  }
-  save(post, dat, file = here::here("out", "sub_cas", "post_cas_a_" + glue::as_glue(loc) + ".rdata"))
-  
-  
-  # rhat <- 10
-  # while(rhat > threshold) {
-  #   cat(loc); cat("\tB\n")
-  #   post <- sampling(m_cas_b, data=dat, iter=n_iter, warmup=n_warmup)
-  #   rhat <- max(summary(post)$summary[, "Rhat"], na.rm=T)
-  # }
-  # save(post, dat, file = here::here("out", "sub_cas", "post_cas_b_" + glue::as_glue(loc) + ".rdata"))
-  # 
-  # 
-  # rhat <- 10
-  # while(rhat > threshold) {
-  #   cat(loc); cat("\tC\n")
-  #   post <- sampling(m_cas_c, data=dat, iter=n_iter, warmup=n_warmup)
-  #   rhat <- max(summary(post)$summary[, "Rhat"], na.rm=T)
-  # }
-  # save(post, dat, file = here::here("out", "sub_cas", "post_cas_c_" + glue::as_glue(loc) + ".rdata"))
+  fit(m_cas_a0, dat, "post_cas_a0_" + glue::as_glue(loc) + ".rdata", threshold)
+  fit(m_cas_a, dat, "post_cas_a_" + glue::as_glue(loc) + ".rdata", threshold)
+  fit(m_cas_b, dat, "post_cas_b_" + glue::as_glue(loc) + ".rdata", threshold)
+  fit(m_cas_c, dat, "post_cas_c_" + glue::as_glue(loc) + ".rdata", threshold)
 }
+
+
 
 

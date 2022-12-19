@@ -12,58 +12,60 @@ names.pars <- c(
 )
 
 
-model <- odin::odin("odin/m_cas_abc.R")
+n_sel <- 1000
+i_sel <- sort(sample(4000, n_sel))
+
+
+
+model <- odin::odin("odin/m_cas_abc.R", target = "r")
 cm <- model$new()
 
 
-
-
-loc <- "Andhra_Pradesh"
-
-
-load(here::here("out", "sub_cas", "post_cas_b_" + glue::as_glue(loc) + ".rdata"))
-
-exo <- dat[c("r_death_a", "r_death_s", "ppv_pub", "ppv_eng", "sens_acf", "spec_acf", "dur_tx")]
-pp <- rstan::extract(post, pars=names.pars) %>% 
-  as_tibble() %>% 
-  rename(wt = "wt[1]") %>% 
-  mutate(across(c(starts_with("prv_")), function(x) x * wt)) %>% 
-  select(-wt) %>% 
-  bind_cols(exo)
-
-
-
-
-sims <- bind_rows(lapply(1:nrow(pp), function(i) {
-  p <- as.list(pp[i, ])
+load_pars <- function(m, loc, label) {
   
-  cm$set_user(user=p)
-  cm$set_user(intv = 0)
+  load(here::here("out", "sub_cas", m + glue::as_glue(loc) + ".rdata"))
   
-  ys <- cm$run(2019:2025)
+  exo <- dat[c("r_death_a", "r_death_s", "ppv_pub", "ppv_eng", 
+               "sens_acf", "spec_acf", "dur_tx")]
   
-
-  c(p, ys[nrow(ys), ])
+  pp <- rstan::extract(post, pars=names.pars) %>% 
+    as_tibble() %>% 
+    rename(wt = "wt[1]") %>% 
+    mutate(across(c(starts_with("prv_")), function(x) x * wt)) %>% 
+    select(-wt) %>% 
+    bind_cols(exo) %>% 
+    mutate(
+      Key = 1:n(),
+      Model = label
+    )
   
-}))
+  pp
+}
 
 
-
-colnames(sims)
-
-
-sims %>%
-  summarise(
-    across(c(p_dx1_pub, p_dx0_pub, p_pub, p_eng, p_pri, dur_a, dur_s, dur_c, del_pat, del_sys, del_tot), list(
-      M = mean,
-      L = function(x) quantile(x, 0.025),
-      U = function(x) quantile(x, 0.975)
-    ))
+for (loc in c("India", "Andhra_Pradesh")) {
+  pars <- bind_rows(
+    load_pars("post_cas_a0_", loc, "Juan"),
+    load_pars("post_cas_a_", loc, "Eq"),
+    load_pars("post_cas_b_", loc, "AllRe"),
+    load_pars("post_cas_c_", loc, "Free")
   ) %>% 
-  pivot_longer(everything()) %>% 
-  extract(name, c("Index", "name"), "(\\S+)_(M|L|U)") %>% 
-  pivot_wider() %>% 
-  mutate(M = M)
+    filter(Key %in% i_sel)
+  
+  
+  sims <- bind_rows(lapply(1:nrow(pars), function(i) {
+    p <- as.list(pars[i, ])
+    
+    cm$set_user(user=p)
+    cm$set_user(intv = 0)
+    
+    ys <- cm$run(2019:2025)
+    
+    bind_cols(p, ys)
+  }))
+  
+  write_csv(sims, here::here("out", "sub_cas", "sims_baseline_" + glue::as_glue(loc) + ".csv"))
+}
 
 
 

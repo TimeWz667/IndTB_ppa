@@ -43,7 +43,7 @@ fit <- function(m, dat, outfile, threshold=threshold) {
   rhat <- 10
   while(rhat > threshold) {
     cat(loc); cat("\t"); cat(outfile); cat("\n")
-    post <- sampling(m_cas_a, data=dat, iter=n_iter, warmup=n_warmup)
+    post <- sampling(m, data=dat, iter=n_iter, warmup=n_warmup)
     rhat <- max(summary(post)$summary[, "Rhat"], na.rm=T)
   }
   save(post, dat, file = here::here("out", "sub_cas", outfile))
@@ -79,9 +79,9 @@ for (loc in locations) {
   dat <- c(dat, exo)
   
   fit(m_cas_a0, dat, "post_cas_a0_" + glue::as_glue(loc) + ".rdata", threshold)
-  fit(m_cas_a, dat, "post_cas_a_" + glue::as_glue(loc) + ".rdata", threshold)
-  fit(m_cas_b, dat, "post_cas_b_" + glue::as_glue(loc) + ".rdata", threshold)
-  fit(m_cas_c, dat, "post_cas_c_" + glue::as_glue(loc) + ".rdata", threshold)
+  # fit(m_cas_a, dat, "post_cas_a_" + glue::as_glue(loc) + ".rdata", threshold)
+  # fit(m_cas_b, dat, "post_cas_b_" + glue::as_glue(loc) + ".rdata", threshold)
+  # fit(m_cas_c, dat, "post_cas_c_" + glue::as_glue(loc) + ".rdata", threshold)
 }
 
 

@@ -37,7 +37,7 @@ parameters {
   real<lower=0, upper=1> p_pub;
   real<lower=0, upper=1> p_ppm;
   
-  real<lower=0.8, upper=0.85> p_dx1_pub;
+  real<lower=0, upper=1> p_dx1_pub;
   real<lower=0, upper=1> rat_dx1_pri;
   
   real<lower=0> r_onset;
@@ -120,10 +120,12 @@ model {
   inc0 ~ uniform(0, 0.05);
   r_onset ~ inv_gamma(scale_dur, scale_dur);
   r_csi ~ inv_gamma(scale_dur, scale_dur);
-  r_recsi ~ inv_gamma(scale_dur, scale_dur);
+  r_recsi ~ exponential(0.8);
 
   r_sc ~ uniform(0.1, 0.3);
   adr ~ uniform(0, 0.2);
+  
+  p_dx1_pub ~ beta(1.8, 1);
 
 
   target += binomial_lpmf(Asym | N, prv_a);

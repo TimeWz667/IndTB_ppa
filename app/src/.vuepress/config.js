@@ -34,26 +34,17 @@ module.exports = {
     lastUpdated: false,
     nav: [
       {
-        text: 'Guide',
-        link: '/guide/',
-      },
-      {
-        text: 'Config',
-        link: '/config/'
-      },
-      {
-        text: 'VuePress',
-        link: 'https://v1.vuepress.vuejs.org'
+        text: 'Cascade',
+        link: '/cascade/',
       }
     ],
     sidebar: {
-      '/guide/': [
+      '/cascade/': [
         {
-          title: 'Guide',
+          title: 'Cascade',
           collapsable: false,
           children: [
-            '',
-            'using-vue',
+            ''
           ]
         }
       ],

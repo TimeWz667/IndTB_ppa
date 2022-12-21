@@ -21,7 +21,6 @@ data {
   real<lower=0> scale_dur;
 
   // Exogenous variables
-  real<lower=0> r_death_a;
   real<lower=0> r_death_s;
   
   real<lower=0, upper=1> ppv_pub;
@@ -41,18 +40,26 @@ parameters {
   real<lower=0, upper=1> p_pub;
   real<lower=0, upper=1> p_ppm;
   
+  real<lower=0, upper=1> rr_death_a;
   real<lower=0> r_onset;
   real<lower=0> r_csi;
   real<lower=0> r_recsi;
   real<lower=0> r_acf;
-  real<lower=0.1, upper = 0.3> r_sc;
+  real<lower=0.1, upper=0.3> r_sc;
+  
+  real<lower=0, upper=1> p_dx1_pub;
+  real<lower=0, upper=1> rat_dx1_pri;
+  real<lower=0, upper=1> rat_dx01;
+  
   
   real<lower=0.5, upper=1> txi_pri;
   real<lower=0.1, upper=ppv_eng> ppv_pri;
-  real<lower=0.04166667, upper=1.5> dur_pri;
+  real<lower=0.04166667, upper=dur_pub> dur_pri;
   real<lower=0, upper=1> p_pri_on_pub;
 }
 transformed parameters {
+  real<lower=0> r_death_a;
+  
   real<lower=0> ra;
   real<lower=0> rs;
   real<lower=0> rc;
@@ -71,11 +78,18 @@ transformed parameters {
   real<lower=0, upper=1> p_eng;
   real<lower=0, upper=1> p_pri;
   
+  real<lower=0, upper=1> p_dx1_eng;
+  real<lower=0, upper=1> p_dx1_pri;
+  real<lower=0, upper=1> p_dx0_pub;
+  real<lower=0, upper=1> p_dx0_eng;
+  real<lower=0, upper=1> p_dx0_pri;
+  
   real<lower=0, upper=1> drug_pri;
   
-  real<lower=0, upper=1> det_pub;
-  real<lower=0, upper=1> det_eng;
-  real<lower=0, upper=1> det_pri;
+  real<lower=0, upper=1> p_dx0;
+  real<lower=0, upper=1> p_dx1;
+  real<lower=0, upper=1> p_txi0;
+  real<lower=0, upper=1> p_txi1;
 
   vector<lower=0>[n_t] wt;
   vector<lower=0>[n_t] prv;
@@ -84,23 +98,32 @@ transformed parameters {
   vector<lower=0>[n_t] nr_eng;
   
   
+  r_death_a = r_death_s * rr_death_a;
+  
   ra = r_sc + r_death_a + r_acf * sens_acf;
   rs = r_sc + r_death_s + r_acf * sens_acf;
   rc = r_sc + r_death_s + r_acf * sens_acf;
   
+  p_dx1_pri = p_dx1_pub * rat_dx1_pri;
+  p_dx0_pub = p_dx1_pub * rat_dx01;
+  p_dx0_pri = p_dx1_pri * rat_dx01;
+
+  p_dx0_eng = (p_dx0_pub + p_dx0_pri) / 2;  
+  p_dx1_eng = (p_dx1_pub + p_dx1_pri) / 2;
 
   p_eng = (1 - p_pub) * p_ppm;
   p_pri = (1 - p_pub) * (1 - p_ppm);
   
+  
+  p_dx0 = p_pub * p_dx0_pub + p_eng * p_dx0_eng + p_pri * p_dx0_pri;
+  p_dx1 = p_pub * p_dx1_pub + p_eng * p_dx1_eng + p_pri * p_dx1_pri;
+    
+  p_txi0 = p_pub * p_dx0_pub * txi_pub + p_eng * p_dx0_eng * txi_eng + p_pri * p_dx0_pri * txi_pri;
+  p_txi1 = p_pub * p_dx1_pub * txi_pub + p_eng * p_dx1_eng * txi_eng + p_pri * p_dx1_pri * txi_pri;
+
   prv_a = inc0 / (r_onset + ra - adr);
   prv_s = r_onset * prv_a / (r_csi + rs - adr);
-  
-  
-  det_pub = r_recsi * p_pub * txi_pub;
-  det_eng = r_recsi * p_eng * txi_eng;
-  det_pri = r_recsi * p_pri * txi_pri;
-  
-  prv_c = r_csi * prv_s / (det_pub + det_eng + det_pri + rc - adr);
+  prv_c = r_csi * (1 - p_txi0) * prv_s / (r_recsi * p_txi1 + rc - adr);
   prv0 = prv_a + prv_s + prv_c;
   
   for (i in 1:n_t) {
@@ -108,18 +131,21 @@ transformed parameters {
     
     prv[i] = prv0 * wt[i];
     
-    nr_acf[i] = (prv[i] * sens_acf + (1 - prv[i]) * (1 - spec_acf)) * r_acf;
     nr_pub[i] = prv_c * r_recsi * p_pub / ppv_pub;
     nr_eng[i] = prv_c * r_recsi * p_eng / ppv_eng;
     
+    nr_acf[i] = (prv[i] * sens_acf + (1 - prv[i]) * (1 - spec_acf)) * r_acf;
+    nr_pub[i] = wt[i] * (prv_s * r_csi * p_pub * p_dx0_pub + prv_c * r_recsi * p_pub * p_dx1_pub) * txi_pub / ppv_pub;
+    nr_eng[i] = wt[i] * (prv_s * r_csi * p_eng * p_dx0_eng + prv_c * r_recsi * p_eng * p_dx1_eng) * txi_eng / ppv_eng;
   }
   
-  prv_t_pub = prv_c * det_pub / ppv_pub;
+  prv_t_pub = (prv_s * r_csi * p_pub * p_dx0_pub + prv_c * r_recsi * p_pub * p_dx1_pub) * txi_pub / ppv_pub;
   prv_t_pub += (prv0 * sens_acf + (1 - prv0) * (1 - spec_acf)) * r_acf;
   prv_t_pub /= (1 / dur_pub - adr);
-  prv_t_eu = prv_c * det_eng / ppv_eng * p_pri_on_pub * (1 / dur_pub - adr);
-  prv_t_ei = prv_c * det_eng / ppv_eng * (1 - p_pri_on_pub) * (1 / dur_pri - adr);
-  prv_t_pri = prv_c * det_pri / ppv_pri * (1 / dur_pri - adr);
+  
+  prv_t_eu = (prv_s * r_csi * p_eng * p_dx0_eng + prv_c * r_recsi * p_eng * p_dx1_eng) * txi_eng / ppv_eng * p_pri_on_pub * (1 / dur_pub - adr);
+  prv_t_ei = (prv_s * r_csi * p_eng * p_dx0_eng + prv_c * r_recsi * p_eng * p_dx1_eng) * txi_eng / ppv_eng * (1 - p_pri_on_pub) * (1 / dur_pri - adr);
+  prv_t_pri = (prv_s * r_csi * p_pri * p_dx0_pri + prv_c * r_recsi * p_pri * p_dx1_pri) * txi_pri / ppv_pri * (1 / dur_pri - adr);
   
   drug_pri = (prv_t_ei + prv_t_pri);
 }
@@ -129,7 +155,9 @@ model {
   r_onset ~ inv_gamma(scale_dur, scale_dur);
 
   r_csi ~ inv_gamma(scale_dur, scale_dur);
-  r_recsi ~ inv_gamma(scale_dur, scale_dur);
+  r_recsi ~ exponential(0.8);
+  
+  p_dx1_pub ~ beta(1.8, 1);
   
   r_acf ~ inv_gamma(scale_dur, scale_dur);
 

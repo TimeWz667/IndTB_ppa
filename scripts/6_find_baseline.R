@@ -12,12 +12,12 @@ names.pars <- c(
 )
 
 
-n_sel <- 1000
+n_sel <- 500
 i_sel <- sort(sample(4000, n_sel))
 
 
 
-model <- odin::odin("odin/m_cas_abc.R", target = "r")
+model <- odin::odin("odin/m_cas_abc.R")
 cm <- model$new()
 
 
@@ -63,8 +63,8 @@ for (loc in c("India", "Andhra_Pradesh")) {
     
     bind_cols(p, ys)
   }))
-  
-  write_csv(sims, here::here("out", "sub_cas", "sims_baseline_" + glue::as_glue(loc) + ".csv"))
+  print("Simulation completed")
+  write.csv(sims, here::here("out", "sub_cas", "sims_baseline_" + glue::as_glue(loc) + ".csv"))
 }
 
 

@@ -15,7 +15,7 @@ n_samples <- 300
 dir.create(here::here("docs", "pars"), showWarnings = F)
 
 ## Collect pars
-for (loc in names(loc_maps)) {
+for (loc in locations[c(1, 2, 5, 8)]) {
   loc <- glue::as_glue(loc)
   
   
@@ -32,27 +32,34 @@ for (loc in names(loc_maps)) {
   txo <- txo[sample(1:length(txo), n_samples, rep =T)]
   
 
-  cs <- jsonlite::read_json(here::here("out", "sub_cs", "post_cs_s1_" + loc + ".json"))
-  cs <- cs[sample(1:length(cs), n_samples, rep =T)]
+  cs <- local({
+    load(here::here("out", "sub_csd", "post_csd_d2_" + loc + ".rdata"))
+    
+    rstan::extract(post, 
+                   pars =  c(
+                     "r_death_a", "r_acf", "r_sc",
+                     "r_onset", "r_csi", "r_recsi", "r_acf", 
+                      "ppv_pri", "adr",
+                      "p_dx1_pub", "p_dx1_eng", "p_dx1_pri", 
+                      "p_dx0_pub", "p_dx0_eng", "p_dx0_pri",
+                      "txi_pri", "p_pri_on_pub", "ppv_pri",
+                      "prv_a", "prv_s", "prv_c", "inc0",
+                      "p_pub", "p_eng", "p_pri", "wt[1]"
+                     )) %>% 
+      as_tibble() %>% 
+      rename(wt = "wt[1]", inc = inc0) %>% 
+      mutate(across(c(starts_with("prv_"), inc), function(x) x * wt)) %>% 
+      select(-wt) %>% 
+      bind_cols(as_tibble(dat[c("r_death_s", "ppv_pub", "ppv_eng", "sens_acf", "spec_acf", "dur_pub")])) %>% 
+      mutate(
+        Key = 1:n()
+      ) %>% 
+      filter(Key %in% sample(1:n(), n_samples, rep =T)) %>% select(-Key)
+  })
   
-  pars <- lapply(1:n_samples, function(i) c(cs[[i]], txo[[i]], txi[[i]]))
   
-  jsonlite::write_json(pars, here::here("docs", "pars", "pars_s1_" + loc + ".json"), auto_unbox=T, digits = 10)
+  pars <- lapply(1:n_samples, function(i) c(as.list(cs[i, ]), txo[[i]], txi[[i]]))
   
-  
-  cs <- jsonlite::read_json(here::here("out", "sub_cs", "post_cs_s2_" + loc + ".json"))
-  cs <- cs[sample(1:length(cs), n_samples, rep =T)]
-  
-  pars <- lapply(1:n_samples, function(i) c(cs[[i]], txo[[i]], txi[[i]]))
-  
-  jsonlite::write_json(pars, here::here("docs", "pars", "pars_s2_" + loc + ".json"), auto_unbox=T, digits = 10)
-  
-  
-  cs <- jsonlite::read_json(here::here("out", "sub_cs", "post_cs_s3_" + loc + ".json"))
-  cs <- cs[sample(1:length(cs), n_samples, rep =T)]
-  
-  pars <- lapply(1:n_samples, function(i) c(cs[[i]], txo[[i]], txi[[i]]))
-  
-  jsonlite::write_json(pars, here::here("docs", "pars", "pars_s3_" + loc + ".json"), auto_unbox=T, digits = 10)
+  jsonlite::write_json(pars, here::here("docs", "pars", "pars_" + loc + ".json"), auto_unbox=T, digits = 10)
 }
 

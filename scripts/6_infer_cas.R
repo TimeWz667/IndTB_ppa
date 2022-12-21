@@ -17,7 +17,7 @@ i_sel <- sort(sample(4000, n_sel))
 
 
 
-model <- odin::odin("odin/m_cas_abc.R", target = "r")
+model <- odin::odin("odin/m_cas_abc.R")
 cm <- model$new()
 
 

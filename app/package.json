@@ -1,8 +1,19 @@
 {
-  "dependencies": {
-    "bootstrap": "^5.2.2",
-    "bootstrap-vue-3": "^0.3.12",
-    "d3": "^7.6.1",
-    "mathjs": "^11.3.2"
+  "name": "app",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "authors": {
+    "name": "Chu-Chang Ku",
+    "email": ""
+  },
+  "repository": "/app",
+  "scripts": {
+    "dev": "vuepress dev src",
+    "build": "vuepress build src"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^1.5.3"
   }
 }

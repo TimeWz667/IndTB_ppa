@@ -79,9 +79,9 @@ for (loc in locations) {
   dat <- c(dat, exo)
   
   fit(m_cas_a0, dat, "post_cas_a0_" + glue::as_glue(loc) + ".rdata", threshold)
-  # fit(m_cas_a, dat, "post_cas_a_" + glue::as_glue(loc) + ".rdata", threshold)
-  # fit(m_cas_b, dat, "post_cas_b_" + glue::as_glue(loc) + ".rdata", threshold)
-  # fit(m_cas_c, dat, "post_cas_c_" + glue::as_glue(loc) + ".rdata", threshold)
+  fit(m_cas_a, dat, "post_cas_a_" + glue::as_glue(loc) + ".rdata", threshold)
+  fit(m_cas_b, dat, "post_cas_b_" + glue::as_glue(loc) + ".rdata", threshold)
+  fit(m_cas_c, dat, "post_cas_c_" + glue::as_glue(loc) + ".rdata", threshold)
 }
 
 

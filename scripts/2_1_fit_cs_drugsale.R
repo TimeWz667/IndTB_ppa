@@ -10,7 +10,8 @@ dir.create("out/sub_csd", showWarnings = F)
 
 ## Models
 # D0: without drug scale data
-# S1: with drug sale
+# D1: with drug sale
+# D2: with drug sale, 100% ppm
 
 
 m_cs_d0 <- rstan::stan_model("stan/cs_d0.stan")

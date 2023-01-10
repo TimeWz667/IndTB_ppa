@@ -170,31 +170,31 @@ while (max(rhat) > threshold) {
       cat(min(rhat1, rhat0)); cat("\n")
     }
     
-    # rhat0 <- rhat[loc, 3]
-    # if (rhat0 > threshold) {
-    #   cat(loc); cat("\tS2\t")
-    #   post <- sampling(m_cs_s2, data=dat, iter=n_iter, warmup=n_warmup)
-    #   rhat1 <- max(summary(post)$summary[, "Rhat"])
-    #   
-    #   if (rhat1 < rhat0) {
-    #     rhat[loc, 3] <- rhat1
-    #     save(post, file = here::here("out", "sub_cs", "post_cs_s2_" + glue::as_glue(loc) + ".rdata"))
-    #   }
-    #   cat(min(rhat1, rhat0)); cat("\n")
-    # }
-    # 
-    # rhat0 <- rhat[loc, 4]
-    # if (rhat0 > threshold) {
-    #   cat(loc); cat("\tS3\t")
-    #   post <- sampling(m_cs_s3, data=dat, iter=n_iter, warmup=n_warmup)
-    #   rhat1 <- max(summary(post)$summary[, "Rhat"])
-    #   
-    #   if (rhat1 < rhat0) {
-    #     rhat[loc, 4] <- rhat1
-    #     save(post, file = here::here("out", "sub_cs", "post_cs_s3_" + glue::as_glue(loc) + ".rdata"))
-    #   }
-    #   cat(min(rhat1, rhat0)); cat("\n")
-    # }
+    rhat0 <- rhat[loc, 3]
+    if (rhat0 > threshold) {
+      cat(loc); cat("\tS2\t")
+      post <- sampling(m_cs_s2, data=dat, iter=n_iter, warmup=n_warmup)
+      rhat1 <- max(summary(post)$summary[, "Rhat"])
+
+      if (rhat1 < rhat0) {
+        rhat[loc, 3] <- rhat1
+        save(post, file = here::here("out", "sub_cs", "post_cs_s2_" + glue::as_glue(loc) + ".rdata"))
+      }
+      cat(min(rhat1, rhat0)); cat("\n")
+    }
+
+    rhat0 <- rhat[loc, 4]
+    if (rhat0 > threshold) {
+      cat(loc); cat("\tS3\t")
+      post <- sampling(m_cs_s3, data=dat, iter=n_iter, warmup=n_warmup)
+      rhat1 <- max(summary(post)$summary[, "Rhat"])
+
+      if (rhat1 < rhat0) {
+        rhat[loc, 4] <- rhat1
+        save(post, file = here::here("out", "sub_cs", "post_cs_s3_" + glue::as_glue(loc) + ".rdata"))
+      }
+      cat(min(rhat1, rhat0)); cat("\n")
+    }
   }
 }
 
@@ -233,27 +233,27 @@ for (loc in locations) {
                        simplifyVector=T, auto_unbox=T, digits=10)
   
   
-  # load(file = here::here("out", "sub_cs", "post_cs_s2_" + glue::as_glue(loc) + ".rdata"))
-  # 
-  # res <- as_tibble(rstan::extract(post)) %>%
-  #   bind_cols(bind_rows(exo)) %>%
-  #   select(-starts_with("nr_"), - prv, - lp__)
-  # 
-  # write.csv(res, file=here::here("out", "sub_cs", "post_cs_s2_" + glue::as_glue(loc) + ".csv"), row.names=F)
-  # 
-  # jsonlite::write_json(apply(as.matrix(res), 1, as.list),
-  #                      here::here("out", "sub_cs", "post_cs_s2_" + glue::as_glue(loc) + ".json"),
-  #                      simplifyVector=T, auto_unbox=T, digits=10)
-  # 
-  # load(file = here::here("out", "sub_cs", "post_cs_s3_" + glue::as_glue(loc) + ".rdata"))
-  # 
-  # res <- as_tibble(rstan::extract(post)) %>%
-  #   bind_cols(bind_rows(exo)) %>%
-  #   select(-starts_with("nr_"), - prv, - lp__)
-  # 
-  # write.csv(res, file=here::here("out", "sub_cs", "post_cs_s3_" + glue::as_glue(loc) + ".csv"), row.names=F)
-  # 
-  # jsonlite::write_json(apply(as.matrix(res), 1, as.list),
-  #                      here::here("out", "sub_cs", "post_cs_s3_" + glue::as_glue(loc) + ".json"),
-  #                      simplifyVector=T, auto_unbox=T, digits=10)
+  load(file = here::here("out", "sub_cs", "post_cs_s2_" + glue::as_glue(loc) + ".rdata"))
+
+  res <- as_tibble(rstan::extract(post)) %>%
+    bind_cols(bind_rows(exo)) %>%
+    select(-starts_with("nr_"), - prv, - lp__)
+
+  write.csv(res, file=here::here("out", "sub_cs", "post_cs_s2_" + glue::as_glue(loc) + ".csv"), row.names=F)
+
+  jsonlite::write_json(apply(as.matrix(res), 1, as.list),
+                       here::here("out", "sub_cs", "post_cs_s2_" + glue::as_glue(loc) + ".json"),
+                       simplifyVector=T, auto_unbox=T, digits=10)
+
+  load(file = here::here("out", "sub_cs", "post_cs_s3_" + glue::as_glue(loc) + ".rdata"))
+
+  res <- as_tibble(rstan::extract(post)) %>%
+    bind_cols(bind_rows(exo)) %>%
+    select(-starts_with("nr_"), - prv, - lp__)
+
+  write.csv(res, file=here::here("out", "sub_cs", "post_cs_s3_" + glue::as_glue(loc) + ".csv"), row.names=F)
+
+  jsonlite::write_json(apply(as.matrix(res), 1, as.list),
+                       here::here("out", "sub_cs", "post_cs_s3_" + glue::as_glue(loc) + ".json"),
+                       simplifyVector=T, auto_unbox=T, digits=10)
 }

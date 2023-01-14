@@ -22,7 +22,7 @@ for (loc in dat_tbps$State) {
            r_death_a, r_death_s, r_sc,
            r_sym, r_csi = r_aware,
            r_det, r_det_all, 
-           det_pub, det_eng, det_pri, ppv_pub, ppv_eng, ppv_pri,
+           det_pub, det_eng, det_pri, ppv_pub, ppv_eng, ppv_pri, p_pri_on_pub,
            r_acf, sens_acf, spec_acf,
            dur_pub, dur_pri,
            p_txi_pri=txi_pri)
@@ -41,29 +41,6 @@ for (loc in dat_tbps$State) {
   sel_txo <- bind_rows(read_json(here::here("out", "sub_tx", "pars_" + loc + ".json"))) %>% 
     mutate(Key = sample(1:n(), n(), rep=F)) %>% 
     arrange(Key)
-  
-  
-  
-  
-  
-  sel_cs %>% 
-    left_join(sel_txi) %>% 
-    left_join(sel_txo) %>%
-    mutate(
-      r_det_all = r_det * (det_pub * p_txi_pub + det_eng * p_txi_eng + det_pri * p_txi_pri),
-      out_a = r_acf * sens_acf + r_death_a + r_sc + r_sym,
-      out_s = r_acf * sens_acf + r_death_s + r_sc + r_csi,
-      out_c = r_acf * sens_acf + r_death_s + r_sc + r_det_all,
-      prev_a = 1,
-      prev_s = prev_a * r_sym / (out_s - adr),
-      prev_c = prev_s * r_csi / (out_c - adr),
-      ps = prev_a + prev_s + prev_c,
-      prev_a = prev_a / ps * prv0,
-      prev_s = prev_s / ps * prv0,
-      prev_c = prev_c / ps * prv0
-    ) %>% 
-    select(-out_a, -out_s, -out_c, -ps)
-  
   
   
   pars <- sel_cs %>% 
@@ -114,16 +91,7 @@ for (loc in dat_tbps$State) {
     select(-r_det_all, -sk)
   
   
-  pars
-  
-  
   write_csv(pars, here::here("out", "pars", "pars_" + loc + ".csv"))
 }
-
-
-
-
-
-
 
 

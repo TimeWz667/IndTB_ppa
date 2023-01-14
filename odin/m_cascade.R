@@ -1,94 +1,149 @@
+deriv(PrevA) <- inc - (r_onset + r_sc + r_death_a + r_acf * sens_acf) * PrevA
 
-deriv(PrevA) <- - (r_onset + r_sc + r_die_asym) * PrevA 
-  
-deriv(PrevS) <- r_onset * PrevA - (r_aware + r_sc + r_die_sym) * PrevS
+deriv(PrevS) <- r_onset * PrevA - (r_csi + r_sc + r_death_s + r_acf * sens_acf) * PrevS
 
-deriv(PrevC) <- r_aware * PrevS - (r_csi + r_sc + r_die_sym) * PrevC
+deriv(PrevC) <- fn0 - sum(det1) - (r_sc + r_death_s + r_acf * sens_acf) * PrevC
 
-deriv(PrevE[]) <- (fn0[i] + sum(fn1[, i])) - (r_recsi + r_sc + r_die_sym) * PrevE[i]
-dim(PrevE) <- 3
+deriv(PrevTx) <- sum(txi) - PrevTx / dur_tx
 
-deriv(PrevTx[]) <- (det0[i] + sum(det1[, i])) * p_txi[i] - (r_ltfu[i] + r_succ[i] + r_die_tx[i]) * PrevTx[i]
-dim(PrevTx) <- 3
+N <- PrevA + PrevS + PrevC + PrevTx
 
-deriv(DeadUt) <- r_die_asym * PrevA + r_die_sym * (PrevS + PrevC + sum(PrevE))
-deriv(DeadTx) <- r_die_tx[1] * PrevTx[1] + r_die_tx[2] * PrevTx[2] + r_die_tx[3] * PrevTx[3]
-deriv(SC) <- r_sc * (PrevA + PrevS + PrevC + sum(PrevE))
-
-deriv(LTFU) <- sum(lost)
-deriv(Succ[]) <- r_succ[i] * PrevTx[i]
-dim(Succ) <- 3
+output(N) <- TRUE
 
 
-output(N) <- PrevA + PrevS + PrevC + sum(PrevE) + sum(PrevTx) + DeadUt + DeadTx + SC + LTFU + sum(Succ)
-
-initial(PrevA) <- 1
-initial(PrevS) <- 0
-initial(PrevC) <- 0
-initial(PrevE[]) <- 0  
-initial(PrevTx[]) <- 0
-initial(DeadUt) <- 0
-initial(DeadTx) <- 0
-initial(SC) <- 0
-initial(LTFU) <- 0
-initial(Succ[]) <- 0
+dur_a <- 1 / (r_onset + r_sc + r_death_a + r_acf * sens_acf)
+dur_s <- 1 / (r_csi + r_sc + r_death_s + r_acf * sens_acf)
+dur_c <- 1 / (r_det1 + r_sc + r_death_s + r_acf * sens_acf)
 
 
+p_det_a <- (r_acf * sens_acf) * dur_a
+p_prog_a <- r_onset * dur_a
+p_drop_a <- 1 - p_det_a - p_prog_a
 
-det0[] <- r_csi * entry[i] * p_diag0[i] * PrevC
+p_det_s <- (sum(det0) + r_acf * sens_acf) * dur_s
+p_prog_s <- fn0 / PrevS  * dur_s
+p_drop_s <- 1 - p_det_s - p_prog_s
+
+r_det1 <- sum(det1) / PrevC
+
+p_det_c <- (r_det1 + r_acf * sens_acf) * dur_c
+p_drop_c <- 1 - p_det_c
+
+
+output(dur_a) <- TRUE
+output(dur_s) <- TRUE
+output(dur_c) <- TRUE
+
+output(p_drop_a) <- TRUE
+output(p_drop_s) <- TRUE
+output(p_drop_c) <- TRUE
+
+
+del_pat <- dur_s 
+del_sys <- dur_c * p_prog_s * p_det_c / (p_prog_s * p_det_c + p_det_a)
+output(del_pat) <- TRUE
+output(del_sys) <- TRUE
+output(del_tot) <- del_pat + del_sys
+
+
+initial(PrevA) <- prv_a
+initial(PrevS) <- prv_s
+initial(PrevC) <- prv_c
+initial(PrevTx) <- prv_t
+
+prv_a <- user(0)
+prv_s <- user(0)
+prv_c <- user(0)
+prv_t <- user(0)
+
+prv <- PrevA + PrevS + PrevC
+
+output(PrA) <- PrevA / prv
+output(PrS) <- PrevS / prv
+output(PrC) <- PrevC / prv
+
+
+det0[] <- r_csi * PrevS * entry[i] * p_dx0[i]
 dim(det0) <- 3
 
-fn0[] <- r_csi * entry[i] * (1 - p_diag0[i]) * PrevC
-dim(fn0) <- 3
 
-det1[, ] <- r_recsi * trm_shift[i, j] * p_diag1[i, j] * PrevE[i]
-dim(det1) <- c(3, 3)
+det1[] <- r_recsi * PrevC * entry[i] * p_dx1[i]
+dim(det1) <- 3
 
-fn1[, ] <- r_recsi * trm_shift[i, j] * (1 - p_diag1[i, j]) * PrevE[i]
-dim(fn1) <- c(3, 3)
+fn0 <- r_csi * PrevS - sum(det0)
 
-
-lost[] <- (det0[i] + sum(det1[, i])) * (1 - p_txi[i]) + r_ltfu[i] * PrevTx[i]
-dim(lost) <- 3
+txi[] <- (det0[i] + det1[i]) / ppv[i]
+dim(txi) <- 3
 
 
-output(det_pub) <- sum(det1[, 1]) + det0[1]
-output(det_eng) <- sum(det1[, 2]) + det0[2]
-output(det_pri) <- sum(det1[, 3]) + det0[3]
-output(det_all) <- sum(det1) + sum(det0)
+det_acf <- r_acf * (sens_acf * (PrevA + PrevS + PrevC) + spec_acf * (1 - N))
 
+output(det_acf) <- TRUE
+output(det_pub) <- det0[1] + det1[1]
+output(det_eng) <- det0[2] + det1[2]
+output(det_pri) <- det0[3] + det1[3]
+output(det_all) <- sum(det0) + sum(det1)
+
+
+# inc <- r_death_a * PrevA + r_death_s * (PrevS + PrevC) + sum(det0) + sum(det1) - (r_sc + r_acf * sens_acf + adr) * prv
+inc <- (r_onset + r_sc + r_death_a + r_acf * sens_acf - adr) * PrevA
+
+output(cdr) <- (r_acf * sens_acf * prv + det0[1] + det1[1] + det0[2] + det1[2]) / inc
 
 r_sc <- user(0.2)
-r_die_asym <- user()
-r_die_sym <- user()
+r_death_a <- user(0)
+r_death_s <- user(0.1)
 
-r_onset <- user()
-r_aware <- user()
+r_onset <- user(1)
+r_csi <- user(1)
+r_recsi <- user(1)
+dur_tx <- user(0.5)
 
-r_csi <- user()
+r_acf <- user(0.0001)
+sens_acf <- user(0.8)
+spec_acf <- user(0.995)
 
-entry[] <- user()
+
+intv <- user(0)
+intv_t <- if (t >= 2023) 1 - intv else 1
+output(intv_t) <- TRUE
+
+p_dx0[1] <- 1 - (1 - p_dx0_pub) * intv_t
+p_dx0[2] <- 1 - (1 - p_dx0_eng) * intv_t
+p_dx0[3] <- p_dx0_pri
+dim(p_dx0) <- 3
+
+p_dx1[1] <- 1 - (1 - p_dx1_pub) * intv_t
+p_dx1[2] <- 1 - (1 - p_dx1_eng) * intv_t
+p_dx1[3] <- p_dx1_pri
+dim(p_dx1) <- 3
+
+p_dx0_pub <- user(0.5)
+p_dx0_eng <- user(0.5)
+p_dx0_pri <- user(0.5)
+p_dx1_pub <- user(0.5)
+p_dx1_eng <- user(0.5)
+p_dx1_pri <- user(0.5)
+
+
+ppv[1] <- ppv_pub
+ppv[2] <- ppv_eng
+ppv[3] <- ppv_pri
+dim(ppv) <- 3
+
+ppv_pub <- user(1)
+ppv_eng <- user(1)
+ppv_pri <- user(1)
+
+
+entry[1] <- p_pub
+entry[2] <- p_eng
+entry[3] <- p_pri
 dim(entry) <- 3
 
-p_diag0[] <- user()
-dim(p_diag0) <-3
+p_pub <- user(0.3)
+p_eng <- user(0.3)
+p_pri <- user(0.4)
 
+adr <- user(0.01)
 
-r_recsi <- user(2)
-
-trm_shift[, ] <- user()
-dim(trm_shift) <- c(3, 3)
-
-p_diag1[, ] <- user()
-dim(p_diag1) <- c(3, 3)
-
-
-p_txi[] <- user()
-dim(p_txi) <- 3
-
-r_succ[] <- user()
-dim(r_succ) <- 3
-r_ltfu[] <- user()
-dim(r_ltfu) <- 3
-r_die_tx[] <- user()
-dim(r_die_tx) <- 3

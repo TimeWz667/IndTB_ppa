@@ -49,7 +49,36 @@ d %>%
 
 
 tab %>% 
+  # filter(Scenario != "With drug sale") %>% 
   ggplot() +
   geom_point(aes(x = p_pri_on_pub, y = inc0, colour = Scenario))
+
+
+tab %>% 
+  ggplot() +
+  geom_density(aes(x = p_pri_on_pub, fill = Scenario), alpha = 0.2)
+
+
+tab %>% 
+  ggplot() +
+  geom_density(aes(x = ppv_pri, fill = Scenario), alpha = 0.2)
+
+tab %>% 
+  ggplot() +
+  geom_density(aes(x = inc0, fill = Scenario), alpha = 0.2)
+
+
+tab %>% 
+  ggplot() +
+  geom_density(aes(x = p_ppm, fill = Scenario), alpha = 0.2)
+
+
+
+tab %>% 
+  ggplot() +
+  geom_point(aes(x = ppv_pri, y = dur_pri, colour = Scenario), alpha = 0.2) +
+  facet_grid(.~Scenario)
+
+
 
 

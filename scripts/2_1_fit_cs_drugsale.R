@@ -35,7 +35,8 @@ exo <- list(
   ppv_eng = 0.85,
   sens_acf = 0.5,
   spec_acf = 0.995,
-  dur_pub = 0.5
+  dur_pub = 0.5,
+  cap_dur_pri = 1
 )
 
 
@@ -51,7 +52,7 @@ rownames(rhat) <- locations
 colnames(rhat) <- c("NoDS", "DS", "NoDS_1PPM")
 
 
-for (loc in locations[c(1, 2, 5, 8)]) {
+for (loc in locations) {
   sel_noti <- dat_noti %>% filter(State == loc) %>% filter(!is.na(N_Det_Pub))
   sel_tbps <- dat_tbps %>% filter(State == loc)
   sel_txi <- p_txi %>% filter(State == loc)
@@ -136,7 +137,7 @@ write_csv(as_tibble(rhat), file = here::here("docs", "tabs", "rhat_csd.csv"))
 ## Convert to json
 
 for (loc in locations) {
-  load(file = here::here("out", "sub_csd", "post_cs_d0_" + glue::as_glue(loc) + ".rdata"))
+  load(file = here::here("out", "sub_csd", "post_csd_d0_" + glue::as_glue(loc) + ".rdata"))
   
   res <- as_tibble(rstan::extract(post)) %>%
     bind_cols(bind_rows(exo)) %>%
@@ -159,6 +160,18 @@ for (loc in locations) {
   
   jsonlite::write_json(apply(as.matrix(res), 1, as.list),
                        here::here("out", "sub_csd", "post_csd_d1_" + glue::as_glue(loc) + ".json"),
+                       simplifyVector=T, auto_unbox=T, digits=10)
+  
+  load(file = here::here("out", "sub_csd", "post_csd_d2_" + glue::as_glue(loc) + ".rdata"))
+  
+  res <- as_tibble(rstan::extract(post)) %>%
+    bind_cols(bind_rows(exo)) %>%
+    select(-starts_with("nr_"), - prv, - lp__)
+  
+  write.csv(res, file=here::here("out", "sub_csd", "post_csd_d2_" + glue::as_glue(loc) + ".csv"), row.names=F)
+  
+  jsonlite::write_json(apply(as.matrix(res), 1, as.list),
+                       here::here("out", "sub_csd", "post_csd_d2_" + glue::as_glue(loc) + ".json"),
                        simplifyVector=T, auto_unbox=T, digits=10)
   
 }

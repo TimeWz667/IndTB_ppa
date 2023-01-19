@@ -33,6 +33,7 @@ data {
   real<lower=0, upper=1> txi_eng;
   
   real<lower=0> dur_pub;
+  real<lower=0> cap_dur_pri;
 }
 parameters {
   real<lower=0, upper=0.05> inc0;
@@ -54,7 +55,7 @@ parameters {
   
   real<lower=0.5, upper=1> txi_pri;
   real<lower=0.1, upper=ppv_eng> ppv_pri;
-  real<lower=0.04166667, upper=dur_pub> dur_pri;
+  real<lower=0.04166667, upper=cap_dur_pri> dur_pri;
   real<lower=0, upper=1> p_pri_on_pub;
 }
 transformed parameters {

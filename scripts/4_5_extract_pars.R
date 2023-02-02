@@ -4,7 +4,7 @@ library(jsonlite)
 
 
 p_dx1_pub = 0.7
-rat_dx01 = 0.1
+rat_dx01 = 0.4
 
 
 load(here::here("data", "dat_cas.rdata"))

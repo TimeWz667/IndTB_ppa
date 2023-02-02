@@ -18,7 +18,7 @@ res <- bind_rows(lapply(ds, function(d) {
 
 
 res %>% 
-  extract(file, c("Scenario", "State"), "post_cs_(s1|s2|s3)_(\\S+).rdata") %>% 
+  extract(file, c("Scenario", "State"), "post_cs_(s0|s1)_(\\S+).rdata") %>% 
   filter(
     startsWith(name, "nr_") | startsWith(name, "prv") | startsWith(name, "pr_") | startsWith(name, "tbps")
   ) %>% 

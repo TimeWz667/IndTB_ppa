@@ -8,10 +8,6 @@ locations <- gsub("pars_", "", locations)
 locations <- gsub(".csv", "", locations)
 
 
-locations
-
-
-loc <- "India"
 
 res <- bind_rows(lapply(locations, function(loc) {
   pars <- read_csv(here::here("out", "pars", "pars_" + glue::as_glue(loc) + ".csv")) %>% 
@@ -127,6 +123,10 @@ delays <- res %>%
   mutate(
     across(starts_with("Delay"), function(x) x * 12)
   )
+
+
+write_csv(delays, file = here::here("docs", "tabs", "delay.csv"))
+
 
 g_pat <- delays %>% 
   ggplot() + 

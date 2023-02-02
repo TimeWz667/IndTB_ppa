@@ -1,0 +1,15 @@
+﻿Identifier,Title,REGION,TYPE_SYS,Subset,N,Mu,M,L,U,RiskFactors
+Atre2022,Tuberculosis pathways to care and transmission of multidrug resistance in India,Pune,NTEP_TU,NonMDR,139,,48,24,80,
+Atre2022,Tuberculosis pathways to care and transmission of multidrug resistance in India,Pune,NTEP_TU,MDR,126,,80,44,161,
+Balasubramnian2022,Diagnostic and treatment delay among new pulmonary tuberculosis patients in Southern India: A cross-sectional study,Kerala,RNTCP,,229,,22,10.5,45,
+BronnerMurrison2016,"How do patients access the private sector in Chennai, India? An evaluation of delays in tuberculosis diagnosis","Chennai, Tamil Nadu",PPM centers,,289,44,28,0,322,
+Chandra2021,"Diagnostic Pathways and Delays in Initiation of Treatment among Newly Diagnosed Tuberculosis Patients in Ballabgarh, India","Ballabgarh, Haryana",RNTCP,,110,36.8,16,8,45,
+Gothankar2016,Care seeking behaviour and various delays in Tuberculosis patients registered under RNTCP in Pune city,Pune,RNTCP,,289,32,22,1,139,
+Kalra2017,"Care seeking and treatment related delay among childhood tuberculosis patients in Delhi, India",Delhi,RNTCP DTC,,175,,41,10,397,
+Kamaraj2021,Delay in diagnosis and treatment among registered TB patients in Directly Observed Treatment Short Course cum Designated Microscopy Centres in South Delhi,Delhi,DOTS,PTB,72,55.99,40,3,866,
+Kumawat2022,Study of factors leading to treatment delay in new sputum positive pulmonary tuberculosis patients and its impact on sputum conversion,Delhi,RNTCP,,250,,12,0,82,
+Mistry2016,"Durations and Delays in Care Seeking, Diagnosis and Treatment Initiation in Uncomplicated Pulmonary Tuberculosis Patients in Mumbai, India",Mumbai,HH,,76,24,15,0,191,
+Mistry2017,"Pulmonary tuberculosis in Patna, India: Durations, delays, and health care seeking behaviour among patients identified through household surveys",Patna,HH,,64,23,9,0,131,
+Paramasivam2017,Diagnostic delay and associated factors among patients with pulmonary tuberculosis in Kerala,Kerala,DOTS,,302,19.3,15,0,119,119
+Tamhane2012,"Pulmonary tuberculosis in mumbai, India: factors responsible for patient and treatment delays",Mumbai,"DOTS, hosp",,150,39.8,27,1,190,
+Veesa2018,"Diagnostic pathways and direct medical costs incurred by new adult pulmonary tuberculosis patients prior to anti-tuberculosis treatment - Tamil Nadu, India",Tamil Nadu,PHC,,880,,21,10,30,

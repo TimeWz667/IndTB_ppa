@@ -33,7 +33,7 @@ d_prev <- dat_tbps %>%
 
 g_prev <- bind_rows(sim_prev, d_prev) %>% 
   mutate(
-    Type = factor(Type, c("Data", "s1", "s2", "s3")),
+    Type = factor(Type, c("Data", "s0", "s1", "s2", "s3")),
     name = factor(name, c("pr_a", "pr_s", "pr_c"))
   ) %>% 
   ggplot() +
@@ -41,7 +41,7 @@ g_prev <- bind_rows(sim_prev, d_prev) %>%
   facet_wrap(.~State, ncol = 4) +
   scale_y_continuous("Proportion, %", labels = scales::percent) + 
   scale_x_discrete("Stage", labels = c(pr_a="Subclinical", pr_s="Pre-care seeking", pr_c="Pre-case detection")) + 
-  scale_colour_discrete("", labels = c(Data="Target data", s1="~(1)", s2="~(2)", s3="~(1)+(2)")) +
+  scale_colour_discrete("", labels = c(Data="Target data", s0="~.", s1="~(1)", s2="~(2)", s3="~(1)+(2)")) +
   expand_limits(y = c(0, 1)) +
   labs(caption = "(1) private ATT usage from drug sale data\n(2) prevalent TB on private ATT") +
   theme(axis.text.x = element_text(angle = -35, hjust=0))

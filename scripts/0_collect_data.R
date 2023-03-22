@@ -90,7 +90,7 @@ state_map %>%
 
 dat_tbps <- state_map %>% 
   left_join(tbps %>% 
-              select(State, N, N_Asym, N_NotCS, N_NotDet, N_OnATT_Pub, N_OnATT_Pri, N_TBLike)) %>% 
+              select(State, N, N_Asym, N_Sym, N_ExCS, N_OnATT_Pub, N_OnATT_Pri, N_TBLikeUt)) %>% 
   left_join(drug) %>% 
   mutate(Year = 2020) %>% 
   select(State, Region, N, starts_with("N_"), starts_with("DrugTime_"))

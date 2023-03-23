@@ -44,13 +44,24 @@ d_tbps %>%
 
 x_pub <- 0.483
 x_pri <- 1 - x_pub
-pdx_pub <- 0.7
-pdx_pri <- x_pub * pdx_pub * (1 - 0.69) / 0.69 / x_pri 
+txi_pub <- 0.7
+pdx_pub <- 0.66
+pdx_pri <- x_pub * pdx_pub * (1 - txi_pub) / txi_pub / x_pri 
 
 pdx_pri
 
 pdx = x_pub * pdx_pub + x_pri * pdx_pri
 pdx
+
+
+(1 / 2.7 - x_pub * pdx_pub) / x_pri
+(1 / 1.9 - x_pub * pdx_pub) / x_pri
+(1 / 12.3 - x_pub * pdx_pub) / x_pri
+
+
+
+
+
 
 
 

@@ -23,8 +23,6 @@ sel_india <- list(
 )
 
 
-
-m_single <- rstan::stan_model(here::here("stan", "txi_single.stan"))
 m_multiple <- rstan::stan_model(here::here("stan", "txi_multiple.stan"))
 
 

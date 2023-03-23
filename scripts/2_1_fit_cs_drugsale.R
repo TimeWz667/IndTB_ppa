@@ -20,7 +20,7 @@ m_cs_d2 <- rstan::stan_model("stan/cs_d2.stan")
 
 
 ## Data loading
-p_txi <- read_csv("docs/tabs/post_txi.csv")
+p_txi <- read_csv(here::here("docs", "tabs", "post_txi.csv"))
 p_txi
 
 

@@ -1,42 +1,34 @@
 data {
   // Data from a prevalence survey
-  int<lower=0> N;
-  int<lower=0> Asym;
-  int<lower=0> Sym;
-  int<lower=0> CS;
-  int<lower=0> TxPub;
-  int<lower=0> TxPri;
+  int<lower=0> N_State;
+  int<lower=0> N_Region;
+  
+  int<lower=0> TxPub[N_State];
+  int<lower=0> TxPri[N_State];
   real YearSurveyed; // timing of the survey
 
-  real<lower=0> DrugPri;
-  real<lower=0> DrugPri_Std;
+  real<lower=0> DrugPri[N_State];
+  real<lower=0> DrugPri_Std[N_State];
 
   // Time-series of notification data
-  int<lower=0> n_t; // number of time points
-  int<lower=0> Pop[n_t]; // population size
-  int<lower=0> NotiPub[n_t]; // notification counts
-  int<lower=0> NotiEng[n_t]; // notification counts
-  int<lower=0> NotiACF[n_t]; // notification counts
-  real<lower=0> Years[n_t]; // years of the notification data
+  int<lower=0> Pop[N_State]; // population size
+  int<lower=0> NotiPub[N_State]; // notification counts
+  int<lower=0> NotiEng[N_State]; // notification counts
+  int<lower=0> NotiACF[N_State]; // notification counts
 
-  // Prior knowledge
-  real<lower=0> scale_dur;
 
   // Exogenous variables
-  real<lower=0> r_death_a;
-  real<lower=0> r_death_s;
-  
   real<lower=0, upper=1> ppv_pub;
-  real<lower=0, upper=1> ppv_eng;
   
-  real<lower=0, upper=1> sens_acf;
-  real<lower=0, upper=1> spec_acf;
+  real<lower=0, upper=1> sens_acf[N_State];
+  real<lower=0, upper=1> spec_acf[N_State];
   
-  real<lower=0, upper=1> txi_pub;
-  real<lower=0, upper=1> txi_eng;
+  real<lower=0, upper=1> txi_pub[N_State];
+  real<lower=0, upper=1> txi_eng[N_State];
   
   real<lower=0> dur_pub;
   real<lower=0> cap_dur_pri;
+
 }
 parameters {
   real<lower=0, upper=1> prv0;
@@ -49,11 +41,9 @@ parameters {
   real<lower=0> r_det_all;
   real<lower=0.1, upper = 0.3> r_sc;
   
-
   real<lower=0.5, upper=1> txi_pri;
   real<lower=0.1, upper=ppv_eng> ppv_pri;
   real<lower=0.04166667, upper=cap_dur_pri> dur_pri;
-
   real<lower=0, upper=1> p_pri_on_pub;
 }
 transformed parameters {
@@ -127,13 +117,11 @@ transformed parameters {
   prv_t_pub /= (1 / dur_pub - adr);
   prv_t_eu = prv0 * pr_c * r_det * det_eng * txi_eng / ppv_eng * p_pri_on_pub * (1 / dur_pub - adr);
   prv_t_ei = prv0 * pr_c * r_det * det_eng * txi_eng / ppv_eng * (1 - p_pri_on_pub) * (1 / dur_pri - adr);
-
   prv_t_pri = prv0 * pr_c * r_det * det_pri * txi_pri / ppv_pri * (1 / dur_pri - adr);
   
   tbps_pub = prv_t_pub;
   tbps_pri = (prv_t_eu + prv_t_ei + prv_t_pri);
   drug_pri = (prv_t_ei + prv_t_pri);
-
 }
 model {
   prv0 ~ uniform(0, 1);
@@ -141,11 +129,12 @@ model {
 
   r_sym ~ inv_gamma(scale_dur, scale_dur);
   r_aware ~ inv_gamma(scale_dur, scale_dur);
+
   r_sc ~ uniform(0.1, 0.3);
 
   p_pri_on_pub ~ beta(1.5, 3.5);
   
-  adr ~ uniform(-0.2, 0.2);
+  adr ~ uniform(0, 0.2);
 
 
   target += binomial_lpmf(Asym | N, prv_a);
@@ -153,7 +142,7 @@ model {
   target += binomial_lpmf(CS | N, prv_c);
   
   // target += binomial_lpmf(TxPub | N, tbps_pub);
-  // target += binomial_lpmf(TxPri | N, tbps_pri);
+  target += binomial_lpmf(TxPri | N, tbps_pri);
   target += normal_lpdf(DrugPri | (prv_t_ei + prv_t_pri), DrugPri_Std);
   
   for (i in 1:n_t) {

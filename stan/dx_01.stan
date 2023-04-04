@@ -25,8 +25,7 @@ parameters {
   
   real<lower=0, upper=1> rat_pdx_pri;
   
-  real<lower=0.2, upper=ppv_pub> ppv_eng;
-  real<lower=0.2, upper=ppv_eng> ppv_pri;
+  real<lower=0.2, upper=ppv_pub> ppv_pri;
   
   
   real<lower=0.04166667, upper=2> dur_pri;
@@ -46,12 +45,16 @@ transformed parameters {
   real<lower=0, upper=1> pdx_eng;
   real<lower=0, upper=1> pdx_pri;
   
+  real<lower=0, upper=1> ppv_eng;
+  
   real tx_pri;
   real drug_time;
   real<lower=0, upper=1> p_pub;
   
+  ppv_eng = ppv_pri;
+  
   pdx_pri = pdx_pub * rat_pdx_pri;
-  pdx_eng = (pdx_pri + pdx_pub) / 2;
+  pdx_eng = pdx_pri;
   
   det_pub = r_cs * ent_pub * pdx_pub;
   det_eng = r_cs * (1 - ent_pub) * ppm * pdx_eng;
@@ -76,17 +79,25 @@ model {
   
   p_txi_pri ~ uniform(0.5, 0.8);
     
-  target += binomial_lpmf(N_Txi_Pub | N_Det_Pub, txi_pub);
-  target += binomial_lpmf(N_Txi_Eng | N_Det_Eng, txi_eng);
+  target += binomial_lpmf(N_Txi_Pub | N_Det_Pub, p_txi_pub);
+  target += binomial_lpmf(N_Txi_Eng | N_Det_Eng, p_txi_eng);
     
   target += binomial_lpmf(N_Det_Pub | Pop, det_pub);
   target += binomial_lpmf(N_Det_Eng | Pop, det_eng);
-  target += normal_lpdf(Drug | drug_time, Drug_Std);
   
+  // target += binomial_lpmf(Tx_Pub | Tx, p_pub);
+  
+  target += normal_lpdf(Drug | drug_time, Drug_Std);
 }
-
 generated quantities {
   real<lower=0, upper=1> p_under;
+  real<lower=0> tp_pri_drug;
+  real<lower=0> tp_pri_drug_time;
+  real<lower=0> tp_pri_txi;
+  
+  tp_pri_drug = (txi_eng * (1 - p_pri_on_pub) + txi_pri) * Pop;
+  tp_pri_txi = (txi_eng + txi_pri) * Pop;
+  tp_pri_drug_time = tp_pri_drug * dur_pri;
   
   p_under = det_pri / (det_pub + det_eng + det_pri);
 }

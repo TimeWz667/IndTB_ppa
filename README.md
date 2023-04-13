@@ -6,7 +6,7 @@ India cascade modelling
 
 - **Tx_(data).stan**: models starting from treatment start
 - **Dx_(data).stan**: models starting from diagnosis
-- **Inc_(data).stan**: models starting from incidence
+- **CS_(data).stan**: models starting from care-seeking
 
 
 ### Datasets (data)

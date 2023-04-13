@@ -85,7 +85,7 @@ model {
   target += binomial_lpmf(N_Det_Pub | Pop, det_pub);
   target += binomial_lpmf(N_Det_Eng | Pop, det_eng);
   
-  // target += binomial_lpmf(Tx_Pub | Tx, p_pub);
+  target += binomial_lpmf(Tx_Pub | Tx, p_pub);
   
   target += normal_lpdf(Drug | drug_time, Drug_Std);
 }

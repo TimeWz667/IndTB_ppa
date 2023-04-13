@@ -1,6 +1,9 @@
 library(tidyverse)
 library(rstan)
 
+options(mc.cores = 4)
+rstan_options(auto_write = TRUE)
+
 
 ## Data loading
 

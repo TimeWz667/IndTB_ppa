@@ -1,6 +1,13 @@
 library(tidyverse)
 library(rstan)
 
+options(mc.cores = 4)
+rstan_options(auto_write = TRUE)
+
+
+library(tidyverse)
+library(rstan)
+
 
 options(mc.cores = 4)
 rstan_options(auto_write = TRUE)
@@ -37,16 +44,18 @@ ds <- list(
   Tx_Pub = tx$X,
   Drug = drug$M,
   Drug_Std = drug$Error,
-  ppv_pub = 0.85
+  ppv_pub = 0.85,
+  ent_pub = 0.483,
+  pdx_pub = 0.65
 )
 
 
 
 ### Fitting ----
 
-# "dx_00.stan", "dx_10.stan", "dx_01.stan"
+# "cs_00.stan", "cs_10.stan", "cs_01.stan"
 
-for(src_model in c("dx_11.stan")) {
+for(src_model in c("cs_11.stan")) {
   model <- rstan::stan_model(here::here("stan", src_model))
   
   post <- rstan::sampling(model, data=ds, iter=5e3, warmup=4e3)

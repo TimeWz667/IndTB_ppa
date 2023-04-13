@@ -11,39 +11,31 @@ data {
   int<lower=0> Tx;
   int<lower=0> Tx_Pub;
   
-  real<lower=0, upper=1> ent_pub;
-  real<lower=0, upper=1> pdx_pub;
   real<lower=0.5, upper=1> ppv_pub;
 
 }
 parameters {
-  real<lower=0.05, upper=1> ppm;
+  real<lower=0.1, upper=1> ppm;
   
   real<lower=0.5, upper=1> p_txi_pub;
   real<lower=0.5, upper=1> p_txi_eng;
   real<lower=0.5, upper=0.8> p_txi_pri;
   
-  real<lower=0, upper=1> rat_pdx_pri;
-  
   real<lower=0.2, upper=ppv_pub> ppv_pri;
-  
   
   real<lower=0.04166667, upper=2> dur_pri;
   real<lower=0, upper=1> p_pri_on_pub;
   
-  real<lower=0, upper=1> r_cs;
+  real<lower=0, upper=0.1> det_pub;
+  real<lower=0, upper=0.1> det_eng;
+
 }
 transformed parameters {
-  real<lower=0, upper=1> det_pub;
-  real<lower=0, upper=1> det_eng;
   real<lower=0, upper=1> det_pri;
   
   real<lower=0, upper=1> txi_pub;
   real<lower=0, upper=1> txi_eng;
   real<lower=0, upper=1> txi_pri;
-  
-  real<lower=0, upper=1> pdx_eng;
-  real<lower=0, upper=1> pdx_pri;
   
   real<lower=0, upper=1> ppv_eng;
   
@@ -53,13 +45,8 @@ transformed parameters {
   
   ppv_eng = ppv_pri;
   
-  pdx_pri = pdx_pub * rat_pdx_pri;
-  pdx_eng = pdx_pri;
-  
-  det_pub = r_cs * ent_pub * pdx_pub;
-  det_eng = r_cs * (1 - ent_pub) * ppm * pdx_eng;
-  det_pri = r_cs * (1 - ent_pub) * (1 - ppm) * pdx_pri;
-  
+  det_pri = det_eng * (1 - ppm) / ppm;
+
   txi_pub = det_pub * p_txi_pub;
   txi_eng = det_eng * p_txi_eng;
   txi_pri = det_pri * p_txi_pri;
@@ -71,9 +58,10 @@ transformed parameters {
   p_pub = txi_pub / (txi_pub + txi_eng + txi_pri);
 }
 model {
-  r_cs~ uniform(0, 1);
-  
-  ppm ~ uniform(0, 1);
+  det_pub ~ uniform(0, 0.1);
+  det_eng ~ uniform(0, 0.1);
+
+  ppm ~ uniform(0.1, 1);
 
   p_pri_on_pub ~ beta(1.5, 3.5);
   

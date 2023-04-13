@@ -1,7 +1,6 @@
 library(tidyverse)
 library(rstan)
 
-
 options(mc.cores = 4)
 rstan_options(auto_write = TRUE)
 
@@ -10,10 +9,6 @@ rstan_options(auto_write = TRUE)
 
 targets <- read_csv(here::here("data", "targets_india.csv"))
 
-targets %>% 
-  filter(Year == 2019) %>% data.frame()
-
-
 drug <- targets %>% filter(Index == "DrugTime")
 tx <- targets %>% filter(Index == "PrTxiPub") %>% 
   mutate(X = round(M * N))
@@ -21,15 +16,10 @@ tx <- targets %>% filter(Index == "PrTxiPub") %>%
 det <- targets %>% 
   filter(Year == 2019) %>% 
   filter(Index == "TxI") %>% 
-  mutate(
-    N_Txi = round(N * M),
-    N_Det = N
-  )
+  mutate(N_Txi = round(N * M))
 
 
 ds <- list(
-  N_Det_Pub = det$N_Det[1],
-  N_Det_Eng = det$N_Det[2],
   N_Txi_Pub = det$N_Txi[1],
   N_Txi_Eng = det$N_Txi[2],
   Pop = 1383112050,
@@ -44,10 +34,19 @@ ds <- list(
 
 ### Fitting ----
 
-# "dx_00.stan", "dx_10.stan", "dx_01.stan"
+src_model <- "tx_11.stan"
+model <- rstan::stan_model(here::here("stan", src_model))
 
-for(src_model in c("dx_11.stan")) {
-  model <- rstan::stan_model(here::here("stan", src_model))
+for(loc in locs) {
+  
+  
+  
+  
+}
+
+
+for(src_model in c("tx_00.stan", "tx_10.stan", "tx_01.stan", "tx_11.stan")) {
+
   
   post <- rstan::sampling(model, data=ds, iter=5e3, warmup=4e3)
   

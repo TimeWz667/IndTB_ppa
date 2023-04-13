@@ -1,16 +1,12 @@
 library(tidyverse)
 library(tidybayes)
 
-
-theme_set(theme_bw())
-
+theme_set(theme_bw() + theme(text = element_text(family = "sans")))
 
 
 
-post <- read_csv(here::here("out", "cs1ppv1dur1sub1", "post.csv"))
 
-
-
+post <- read_csv(here::here("out", "cs_11", "post.csv"))
 
 
 g_ppm <- post %>% 
@@ -21,7 +17,7 @@ g_ppm <- post %>%
   expand_limits(x = c(0, 1)) +
   theme(axis.text.y = element_blank())
 
-
+g_ppm
 
 g_pdx_pri <- post %>% 
   ggplot() + 
@@ -31,7 +27,7 @@ g_pdx_pri <- post %>%
   expand_limits(x = c(0, 1)) +
   theme(axis.text.y = element_blank())
 
-
+g_pdx_pri
 
 
 g_dur_pri <- post %>% 
@@ -56,9 +52,9 @@ g_ppv_pri <- post %>%
 
 g_bind <- ggpubr::ggarrange(g_ppm, g_pdx_pri, g_ppv_pri, g_dur_pri, ncol=1)
 
+g_bind
 
-
-ggsave(g_bind, filename = here::here("out", "cs1ppv1dur1sub1", "g_posterior.png"), width = 5, height = 5)
+ggsave(g_bind, filename = here::here("out", "cs_11", "g_posterior.png"), width = 5, height = 5)
 
 
 

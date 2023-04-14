@@ -16,18 +16,6 @@ post <- bind_rows(lapply(c("tx_00", "tx_01", "tx_11", "dx_11", "cs_11"), functio
 
 
 
-
-post %>% 
-  ggplot() +
-  stat_halfeye(aes(x = ppm, y = Scenario)) 
-
-
-post %>% 
-  ggplot() +
-  stat_halfeye(aes(x = tp_pri_txi, y = Scenario)) 
-
-
-
 g_p_under <- post %>% 
   filter(Scenario %in% c("tx_11", "dx_11", "cs_11")) %>% 
   ggplot() +

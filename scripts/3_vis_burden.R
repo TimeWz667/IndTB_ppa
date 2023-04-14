@@ -26,7 +26,10 @@ g_attload <- post %>%
   )) +
   scale_fill_discrete("Data sets", labels=c(tx_00="Nikshay only", tx_01="+Drug sales", tx_11="+TBPS"))
 
-ggsave(g_attload, filename=here::here("doc"))
+
+g_attload
+
+ggsave(g_attload, filename=here::here("docs", "figs", "g_caseload.png"), width = 6, heigh = 4)
 
 
 

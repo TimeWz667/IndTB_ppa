@@ -62,7 +62,7 @@ for (sc in c("cs_11", "dx_11", "tx_11", "tx_01", "tx_10", "tx_00")) {
 
 
 
-post <- bind_rows(lapply(c("tx_00", "tx_01", "tx_11"), function(folder) {
+post <- bind_rows(lapply(c("tx_00", "tx_10", "tx_01", "tx_11"), function(folder) {
   read_csv(here::here("out", folder, "post.csv")) %>% 
     select(ppm, dur_pri, ppv_pri, p_pri_on_pub, 
            tp_pri_drug, tp_pri_drug_time, tp_pri_txi) %>% 
@@ -72,10 +72,27 @@ post <- bind_rows(lapply(c("tx_00", "tx_01", "tx_11"), function(folder) {
     Scenario = case_when(
       Scenario == "tx_00" ~ "Prior distribution",
       Scenario == "tx_01" ~ "Drug sales data alone",
+      Scenario == "tx_10" ~ "prevalence survey alone",
       T ~ "Drug sales + prevalence survey data"
     )
   )
 
+
+
+post %>% 
+  ggplot() +
+  geom_point(aes(x = ppv_pri, y = ppm, colour = Scenario), alpha = 0.2) +
+  facet_wrap(.~Scenario)
+
+
+
+post %>% 
+  filter(Scenario != "prevalence survey alone") %>% 
+  ggplot() +
+  stat_halfeye(aes(x = ppv_pri / dur_pri, y = Scenario, fill = Scenario), alpha = 0.4, position = position_dodge(-0.1)) +
+  scale_x_continuous("PPV/Duration, private", limits = c(0, 3)) +
+  guides(fill = guide_legend(reverse = T))
+  
 
 
 g_ppv <- post %>% 

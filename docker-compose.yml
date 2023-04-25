@@ -1,7 +1,7 @@
 version:                "3"
 services:
   ppa:
-      image:  timewz667/sims-pars:latest
+      image:  jupyter/scipy-notebook:python-3.10.9
       volumes:
         - ./notebooks:/home/jovyan/work/notebooks
         - ./data:/home/jovyan/work/data

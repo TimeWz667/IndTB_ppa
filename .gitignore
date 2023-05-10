@@ -25,3 +25,4 @@ ppa/*/__pycache__/
 /app/node_modules/
 .config
 .local
+data/.ipynb_checkpoints/

@@ -29,12 +29,18 @@ endpt <- runs %>%
   filter(startsWith(Stage, "E_"))
 
 
-cohort %>% filter(Time <= 1.5) %>% 
+g_cohort <- cohort %>% filter(Time <= 1.5) %>% 
   ggplot() +
   geom_bar(aes(x = Time, y = value, fill = StageLab), width=0.1, stat = "identity") +
   geom_bar(data = endpt, aes(x = 1.7, y = value, fill = StageLab), width=0.1, stat = "identity") +
   scale_fill_manual("Stage", values = state_colour) +
   scale_y_continuous("Proportion, %", labels = scales::percent) +
   scale_x_continuous("Time since incidence, months", labels = scales::number_format(scale=12))
+
+
+ggsave(g_cohort, filename = here::here("docs", "figs", "g_cohort.png"), width = 5, height = 3)
+
+
+
 
 

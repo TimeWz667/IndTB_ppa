@@ -2,16 +2,9 @@
 India cascade modelling
 
 
-### Scenarios
+# Cohort since case incident
 
-- **Tx_(data).stan**: models starting from treatment start
-- **Dx_(data).stan**: models starting from diagnosis
-- **CS_(data).stan**: models starting from care-seeking
+## India, national level
 
+<a href="url"><img src="docs/figs/g_cohort.png" align="center" width="70%" ></a>
 
-### Datasets (data)
-
-- **00**: Nikshay data only
-- **10**: TBPS + Nikshay
-- **01**: Drug-sale + Nikshay
-- **11**: TBPS + Drug-sale + Nikshay

@@ -1,0 +1,11 @@
+Stage,StageLab,Colour,EndPoint
+S_Asym,Asymptomatic,#9ecae1,
+S_Sym,Pre care-seeking,#fdd0a2,
+S_ExCS,Sought care,#fd8d3c,
+S_TxPub,"On ATT, Public",#74c476,
+S_TxPri,"On ATT, Private",#31a354,
+E_SelfCured,Self Cured,#d9d9d9,V
+E_TxSucc,Completed ATT,#bdbdbd,V
+E_TxLTFU,LTFU,#969696,V
+E_UtDeath,Died,#636363,V
+E_TxDeath,Died,#636363,V

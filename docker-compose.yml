@@ -1,25 +1,14 @@
 version:                "3"
 services:
   ppa:
-      image:  jupyter/scipy-notebook:python-3.10.9
+      image:  timewz667/sims-pars:v2.6.1
       volumes:
-        - ./notebooks:/home/jovyan/work/notebooks
+        - ./notebooks:/home/jovyan/work
         - ./data:/home/jovyan/work/data
-        - ./docs:/home/jovyan/work/docs
-        - ./out:/home/jovyan/work/out
         - ./ppa:/home/jovyan/work/ppa
+        - ./docs:/home/jovyan/work/docs
       ports:
-        - 8888:8888
+        - 2048:8888
       environment:
         - JUPYTER_TOKEN=hi
       container_name:   ppa
-
-  rstan:
-    image: kosugitti/rstan-env:latest
-    volumes:
-      - ./:/home/rstudio
-    ports:
-      - 8787:8787
-    environment:
-      - PASSWORD=Lunar
-    container_name: rstan

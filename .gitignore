@@ -27,3 +27,4 @@ ppa/*/__pycache__/
 .local
 
 data/.ipynb_checkpoints/
+docs/figs/legacy/

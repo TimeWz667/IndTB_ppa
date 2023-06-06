@@ -1,0 +1,6 @@
+PCore prior {
+    rr_die_asym ~ unif(0, 1)
+    r_die_sym ~ unif(0.1, 0.2)
+    r_die_asym = r_die_sym * rr_die_asym
+    r_sc ~ unif(0.1, 0.3)
+}

@@ -1,4 +1,4 @@
-version:                "3"
+version: "3"
 services:
   ppa:
       image:  timewz667/sims-pars:latest

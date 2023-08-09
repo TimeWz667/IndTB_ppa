@@ -3,4 +3,17 @@ PCore prior {
     r_die_sym ~ unif(0.1, 0.2)
     r_die_asym = r_die_sym * rr_die_asym
     r_sc ~ unif(0.1, 0.3)
+
+    inc0 ~ unif(0, 0.01)
+
+    r_onset ~ unif(0, 10)
+    r_csi ~ unif(0, 10)
+    r_recsi ~ unif(0, 10)
+
+    p_dx_pub ~ triangle(0.3, 0.65, 1)
+
+    p_txi_pub = 0.9
+    p_txi_eng = 0.8
+    p_txi_pri = 0.8
+    p_csi_pub = 0.4
 }

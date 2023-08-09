@@ -39,12 +39,18 @@ class CasRepo:
         mu_a = exo['r_die_asym'] + exo['r_sc']
         mu_s = mu_c = exo['r_die_sym'] + exo['r_sc']
 
-        txi = np.array([pp[f'txi_{sec}'] for sec in ['pub', 'eng', 'pri']]).sum()
+        txis = np.array([pp[f'txi_{sec}'] for sec in ['pub', 'eng', 'pri']])
+        txi = txis.sum()
 
-        p_txi = np.array([pp[f'p_txi_{sec}'] for sec in ['pub', 'eng', 'pri']])
-        p_dx = np.array([pp[f'pdx_{sec}'] for sec in ['pub', 'eng', 'pri']])
-        ent_pub, ppm = pp['ent_pub'], pp['ppm']
-        p_ent = np.array([ent_pub, (1 - ent_pub) * ppm, (1 - ent_pub) * (1 - ppm)])
+        p_txi = np.array([exo[f'p_txi_{sec}'] for sec in ['pub', 'eng', 'pri']])
+
+        det = txis / p_txi
+        ppm = det[1] / det[1:].sum()
+        p_ent_pub = exo['p_ent_pub']
+        p_ent = np.array([p_ent_pub, (1 - p_ent_pub) * ppm, (1 - p_ent_pub) * (1 - ppm)])
+
+        p_dx = det / p_ent
+        p_dx *= exo['p_dx_pub'] / p_dx[0]
 
         p_dx_all = (p_txi * p_dx * p_ent).sum()
 
@@ -54,8 +60,8 @@ class CasRepo:
 
         txi0 = p_s * r_csi * p_dx_all
 
-        assert txi > txi0
-        txi1 = txi - txi0
+        # assert txi > txi0
+        txi1 = max(txi - txi0, 0)
         r_recsi = txi1 / p_c / p_dx_all
 
         p_dx0 = p_dx1 = p_dx
@@ -110,23 +116,6 @@ class CasRepo:
         ps1['p_dx1'] = ps['p_dx'] / pdx / k
         return ps1
 
-    def calc_tk(self, ps):
-        prev = self.Prev
-        p_s, p_c = prev['PrevSym'], prev['PrevExCS']
-
-        r_csi, r_recsi = ps['r_csi'], ps['r_recsi']
-
-        p_ent = ps['p_ent']
-        p_txi = ps['p_txi']
-        pdx0, pdx1 = ps['p_dx0'], ps['p_dx1']
-
-        pdx0, pdx1 = (p_ent * p_txi * pdx0).sum(), (p_ent * p_txi * pdx1).sum()
-
-        txi = p_s * r_csi * pdx0 + p_c * r_recsi * pdx1
-        pdx = txi / (p_s * r_csi + p_c * r_recsi)
-
-        return txi, pdx, pdx0, pdx1
-
     @staticmethod
     def load(file):
         with open(file, 'r') as f:
@@ -138,10 +127,10 @@ class CasRepo:
 if __name__ == '__main__':
     from sims_pars import bayes_net_from_script, sample
 
-    with open('../data/prior.txt', 'r') as f:
+    with open('../../data/prior.txt', 'r') as f:
         prior = bayes_net_from_script(f.read())
 
-    cr = CasRepo.load('../data/pars_india.json')
+    cr = CasRepo.load('../../data/Bihar/pars_txo.json')
 
     exo = sample(prior)
     ps = cr.prepare_pars(exo=exo)

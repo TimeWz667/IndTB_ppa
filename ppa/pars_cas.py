@@ -109,7 +109,7 @@ def calc_stats(p):
     p_dx = p['p_ent'] * p['p_dx'] * p['p_txi']
     p_dx_all = p_dx.sum()
 
-    p_txi_all = p_dx_all / (p['p_ent'] * p['p_dx']).sum()
+    txi = ((p_dx / p_dx_all).reshape((3, -1)) * p['tx_alo']).sum(0)
 
     p_a = inc / (p['r_die_asym'] + p['r_sc'] + p['r_onset'] - adr)
     p_s = p['r_onset'] * p_a / (p['r_die_sym'] + p['r_sc'] + p['r_csi'] - adr)
@@ -129,16 +129,26 @@ def calc_stats(p):
     p_s_sc = p['r_sc'] * dur_s
     p_s_prog = p['r_csi'] * (1 - p_dx_all) * dur_s
     p_s_det = p['r_csi'] * p_dx_all * dur_s
+    p_s_tu = p_s_det * txi[0] / txi.sum()
+    p_s_ti = p_s_det * txi[1] / txi.sum()
 
     p_c_die = p['r_die_sym'] * dur_c
     p_c_sc = p['r_sc'] * dur_c
     p_c_det = p['r_recsi'] * p_dx_all * dur_c
+    p_c_tu = p_c_det * txi[0] / txi.sum()
+    p_c_ti = p_c_det * txi[1] / txi.sum()
 
-    txi = ((p_dx / p_dx_all).reshape((3, -1)) * p['tx_alo']).sum(0)
+    p_to_tu = np.array([p['r_txs'][0], p['r_txl'][0], p['r_txd'][0]])
+    p_to_tu /= p_to_tu.sum()
+    p_to_ti = np.array([p['r_txs'][1], p['r_txl'][1], p['r_txd'][1]])
+    p_to_ti /= p_to_ti.sum()
 
-    p_t_die = (txi * p['tx_dur'] * p['r_txd']).sum()
-    p_t_ltfu = (txi * p['tx_dur'] * p['r_txl']).sum()
-    p_t_succ = (txi * p['tx_dur'] * p['r_txs']).sum()
+    p_ts_die = (txi * p['tx_dur'] * p['r_txd'])
+    p_ts_ltfu = (txi * p['tx_dur'] * p['r_txl'])
+    p_ts_succ = (txi * p['tx_dur'] * p['r_txs'])
+    p_t_die = p_ts_die.sum()
+    p_t_ltfu = p_ts_ltfu.sum()
+    p_t_succ = p_ts_succ.sum()
 
     drop_die_a = p_a_die
     drop_die_s = p_a_prog * p_s_die
@@ -176,6 +186,28 @@ def calc_stats(p):
         'DropSelfCureS': drop_sc_s,
         'DropSelfCureC': drop_sc_c,
         'DropLTFU': drop_ltfu_t,
+        'p_a2die': p_a_die,
+        'p_a2sc': p_a_sc,
+        'p_a2s': p_a_prog,
+
+        'p_s2die': p_s_die,
+        'p_s2sc': p_s_sc,
+        'p_s2e': p_s_prog,
+        'p_s2tu': p_s_tu,
+        'p_s2ti': p_s_ti,
+
+        'p_c2die': p_c_die,
+        'p_c2sc': p_c_sc,
+        'p_c2tu': p_c_tu,
+        'p_c2ti': p_c_ti,
+
+        'p_tu2txs': p_to_tu[0],
+        'p_tu2txl': p_to_tu[1],
+        'p_tu2txd': p_to_tu[2],
+        'p_ti2txs': p_to_ti[0],
+        'p_ti2txl': p_to_ti[1],
+        'p_ti2txd': p_to_ti[2],
+
         'CasOnset': cas_onset,
         'CasCSI': cas_csi,
         # 'CasDet': cas_csi / p_txi_all,
